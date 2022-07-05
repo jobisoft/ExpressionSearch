@@ -6,7 +6,7 @@
       "strict_max_version": "102.*"
     }
   },
-  "version": "3.2.1",
+  "version": "3.3",
   "manifest_version": 2,
   "name": "Expression Search - NG",
   "description": "Type 'from:fred to:tom' or 'f:fred t:tom' to see all messages from Fred to Tom in the current view.",
@@ -29,18 +29,21 @@
     "open_in_tab": true
   },
   "experiment_apis": {
-    "BootstrapLoader": {
-      "schema": "api/BootstrapLoader/schema.json",
+    "ExpressionSearch": {
+      "schema": "api/ExpressionSearch/schema.json",
       "parent": {
         "scopes": [
           "addon_parent"
         ],
         "paths": [
           [
-            "BootstrapLoader"
+            "ExpressionSearch"
           ]
         ],
-        "script": "api/BootstrapLoader/implementation.js"
+        "script": "api/ExpressionSearch/implementation.js",
+        "events": [
+          "startup"
+        ]
       }
     },
     "LegacyPrefs": {

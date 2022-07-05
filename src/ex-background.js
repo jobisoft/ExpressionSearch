@@ -59,13 +59,3 @@ messenger.runtime.onInstalled.addListener(async ({ reason, temporary }) => {
       break;
   }
 });
-
-async function main() {
-  await messenger.BootstrapLoader.registerChromeUrl([
-    ["resource", "expressionsearch", ""]
-  ]);
-
-  await messenger.BootstrapLoader.registerBootstrapScript("bootstrap.js");
-};
-
-main();

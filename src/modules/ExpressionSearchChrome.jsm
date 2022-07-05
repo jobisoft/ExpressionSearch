@@ -81,10 +81,6 @@ var ExpressionSearchChrome = {
   prefs: null, // preference object
   options: {}, // preference strings
 
-  init: function () {
-    this.initPrefs();
-  },
-
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1413413 Remove support for extensions having their own prefs file
   setDefaultPrefs: function () {
     let branch = Services.prefs.getDefaultBranch("");
