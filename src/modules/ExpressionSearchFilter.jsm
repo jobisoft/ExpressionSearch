@@ -5,7 +5,7 @@
 //Changes for TB 78+ (c) by Klaus Buecher/opto 2020-2021
 "use strict";
 
-var EXPORTED_SYMBOLS = ["ExperssionSearchFilter"];
+var EXPORTED_SYMBOLS = ["ExpressionSearchFilter"];
 
 const { nsMsgSearchAttrib: nsMsgSearchAttrib, nsMsgSearchOp: nsMsgSearchOp, nsMsgMessageFlags: nsMsgMessageFlags, nsMsgSearchScope: nsMsgSearchScope } = Ci;
 var  { ExpressionSearchChrome } =  ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchChrome.jsm");
@@ -17,7 +17,7 @@ var {
   QuickFilterState,
 } = ChromeUtils.import("resource:///modules/QuickFilterManager.jsm");
 
-var  { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens }  = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.js");
+var  { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens }  = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { GlodaUtils } = ChromeUtils.import("resource:///modules/gloda/GlodaUtils.jsm");// for GlodaUtils.deMime and parseMailAddresses
@@ -350,7 +350,7 @@ function _getRegEx(aSearchValue) {
   filterService.addCustomTerm(bodyRegex);
 })();
 
-let ExperssionSearchFilter = {
+let ExpressionSearchFilter = {
   name: "expression",
   domId: "expression-search-textbox",
   
@@ -401,14 +401,14 @@ let ExperssionSearchFilter = {
       aSearchString.replace(/\s+$/,'');
       if ( aSearchString == '' ) return;
       var e = ExpressionSearchComputeExpression(aSearchString);
-      if ( ExperssionSearchFilter.latchQSFolderReq ) {
+      if ( ExpressionSearchFilter.latchQSFolderReq ) {
         let terms = aTerms.slice();
-        ExperssionSearchFilter.createSearchTermsFromExpression(e,aTermCreator,terms);
-        ExperssionSearchFilter.latchQSFolderReq.createQuickFolder.apply(ExperssionSearchFilter.latchQSFolderReq, [topWin, terms]);
-        ExperssionSearchFilter.latchQSFolderReq = 0;
+        ExpressionSearchFilter.createSearchTermsFromExpression(e,aTermCreator,terms);
+        ExpressionSearchFilter.latchQSFolderReq.createQuickFolder.apply(ExpressionSearchFilter.latchQSFolderReq, [topWin, terms]);
+        ExpressionSearchFilter.latchQSFolderReq = 0;
       } else {
         ExpressionSearchLog.info("Experssion Search Statements: " + ExpressionSearchExprToStringInfix(e));
-        ExperssionSearchFilter.createSearchTermsFromExpression(e,aTermCreator,aTerms);
+        ExpressionSearchFilter.createSearchTermsFromExpression(e,aTermCreator,aTerms);
         haveBodyMapping = {};
         badREs = {};
         ExpressionSearchChrome.showHideHelp(topWin, true, undefined, undefined, undefined, this.getSearchTermString(aTerms));
@@ -445,7 +445,7 @@ let ExperssionSearchFilter = {
   propagateState: function(aOld, aSticky) {
     return {
       // must clear state when create quick search folder, or recursive call happenes when aSticky.
-      text: ( aSticky && !ExperssionSearchFilter.latchQSFolderReq && typeof(aOld) != 'undefined' )? aOld.text : null,
+      text: ( aSticky && !ExpressionSearchFilter.latchQSFolderReq && typeof(aOld) != 'undefined' )? aOld.text : null,
       //states: {},
     };
   },
@@ -459,7 +459,7 @@ let ExperssionSearchFilter = {
       // press Enter to select searchInput
       aNode.select();
       // if text not null and create qs folder return true
-      if ( text && ExperssionSearchFilter.latchQSFolderReq ) {
+      if ( text && ExpressionSearchFilter.latchQSFolderReq ) {
         needSearch = true;
       }
     }
@@ -502,7 +502,7 @@ ExpressionSearchChrome.showHideHelp(aDocument.defaultView, false);
 
     let panel = aDocument.getElementById("qfb-text-search-upsell");
     if (aFromPFP == "upsell") {
-      let searchString = ExperssionSearchFilter.expression2gloda(aFilterValue.text);
+      let searchString = ExpressionSearchFilter.expression2gloda(aFilterValue.text);
       let line1 = aDocument.getElementById("qfb-upsell-line-one");
       let line2 = aDocument.getElementById("qfb-upsell-line-two");
       line1.value = line1.getAttribute("fmt").replace("#1", searchString);
@@ -866,13 +866,13 @@ ExpressionSearchChrome.showHideHelp(aDocument.defaultView, false);
   },
 
   initTest: function (){
-    QuickFilterManager.defineFilter(ExperssionSearchFilter);
-    QuickFilterManager.textBoxDomId = ExperssionSearchFilter.domId;
+    QuickFilterManager.defineFilter(ExpressionSearchFilter);
+    QuickFilterManager.textBoxDomId = ExpressionSearchFilter.domId;
 
   }
 
-} // end of ExperssionSearchFilter define
+} // end of ExpressionSearchFilter define
 //console.log("before QuickFilterManager.defineFilter");
-//QuickFilterManager.defineFilter(ExperssionSearchFilter);
-//QuickFilterManager.textBoxDomId = ExperssionSearchFilter.domId;
+//QuickFilterManager.defineFilter(ExpressionSearchFilter);
+//QuickFilterManager.textBoxDomId = ExpressionSearchFilter.domId;
 

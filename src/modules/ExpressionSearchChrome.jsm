@@ -19,7 +19,7 @@ let console = {
   }
 }
 
-var ExperssionSearchFilter = {};
+var ExpressionSearchFilter = {};
 
 /* https://bugzilla.mozilla.org/show_bug.cgi?id=1383215#c24
 There are two ways that we currently support packaging omnijar:
@@ -79,14 +79,14 @@ var {
 
 // to call gloda search, actually no need
 //Cu.import("resource:///modules/gloda/msg_search.js");
-//if (!ExperssionSearchFilter  )     
-//   console.log("vor  import ExperssionSearchFilter", ExperssionSearchFilter);
-//  var {ExperssionSearchFilter} = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter1.js");
-//   console.log("end importModulesit", ExperssionSearchFilter);
+//if (!ExpressionSearchFilter  )     
+//   console.log("vor  import ExpressionSearchFilter", ExpressionSearchFilter);
+//  var {ExpressionSearchFilter} = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter1.js");
+//   console.log("end importModulesit", ExpressionSearchFilter);
 
 
-//Cu.import("resource://expressionsearch/modules/gmailuiParse.js");
-//  var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.js");
+//Cu.import("resource://expressionsearch/modules/gmailuiParse.jsm");
+//  var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
 
 
 console.log("vor import ExpressionSearchLog");
@@ -95,7 +95,7 @@ console.log("nach import ExpressionSearchLog", ExpressionSearchLog);
 
 
 console.log("nochmal GMAILUIParse in ");
-var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.js");
+var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
 console.log("fertig GMAILUIParse in ");
 
 
@@ -177,8 +177,8 @@ var ExpressionSearchChrome = {
     
     But the code that's using resource://gre/ URLs for app content, or vice versa, is still technically wrong. */
 
-    //Cu.import("resource://expressionsearch/modules/gmailuiParse.js");
-    //var {ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens} = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.js");
+    //Cu.import("resource://expressionsearch/modules/gmailuiParse.jsm");
+    //var {ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens} = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
 
     //.import("resource://expressionsearch/modules/ExpressionSearchAOP.jsm");
     //  //Cu.import("resource://expressionsearch/modules/ExpressionSearchCommon.jsm");
@@ -207,7 +207,7 @@ var ExpressionSearchChrome = {
     
     if (!ExpressionSearchComputeExpression ) {
       console.log("nochmal GMAILUIParse in importmodules");
-      var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.js");
+      var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
       console.log("fertig GMAILUIParse in importmodules");
     
     }
@@ -216,11 +216,11 @@ var ExpressionSearchChrome = {
     //console.log(this.loaded);
     //if (this.loaded==0) ExpressionSearchLog.log("Expression Search is NOT restartless! Please restart Thunderbird!", 1);
     //this.loaded=1;
-    //  var { ExperssionSearchFilter } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter.js");
-    console.log(" vor ExperssionSearchFilter");
-    ExperssionSearchFilter = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter.js").ExperssionSearchFilter;
-    console.log("ExperssionSearchFilter");
-    console.log(ExperssionSearchFilter);
+    //  var { ExpressionSearchFilter } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter.jsm");
+    console.log(" vor ExpressionSearchFilter");
+    ExpressionSearchFilter = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter.jsm").ExpressionSearchFilter;
+    console.log("ExpressionSearchFilter");
+    console.log(ExpressionSearchFilter);
 
     /*  
       // for hook functions for attachment search
@@ -256,7 +256,7 @@ var ExpressionSearchChrome = {
    
    // to call gloda search, actually no need
       //Cu.import("resource:///modules/gloda/msg_search.js");
-      var {ExperssionSearchFilter} = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter.js");
+      var {ExpressionSearchFilter} = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter.jsm");
       console.log("end importModulesit");
   
   
@@ -641,10 +641,10 @@ var ExpressionSearchChrome = {
       let panel = win.document.getElementById("qfb-text-search-upsell");
       if (typeof (searchValue) != 'undefined' && searchValue != '') {
         if (event.ctrlKey || event.metaKey) { // create quick search folder
-          ExperssionSearchFilter.latchQSFolderReq = me;
+          ExpressionSearchFilter.latchQSFolderReq = me;
           this._fireCommand(this);
         } else if (GlodaIndexer.enabled && (panel.state == "open" || event.shiftKey || searchValue.toLowerCase().indexOf('g:') == 0)) { // gloda
-          searchValue = ExperssionSearchFilter.expression2gloda(searchValue);
+          searchValue = ExpressionSearchFilter.expression2gloda(searchValue);
           if (searchValue != '') {
             //this._fireCommand(this); // just for selection, but no use as TB will unselect it
             let tabmail = win.document.getElementById("tabmail");
@@ -1188,16 +1188,16 @@ var ExpressionSearchChrome = {
         // On Mac, contextmenu is fired before onclick, thus even break onclick  still has context menu
         threadPane.addEventListener("contextmenu", me.onContextMenu, true);
       };
-      console.log("ExperssionSearchFilter  in  loadInto3pane");
-      console.log(ExperssionSearchFilter);
-      QuickFilterManager.defineFilter(ExperssionSearchFilter);
-      QuickFilterManager.textBoxDomId = ExperssionSearchFilter.domId;
+      console.log("ExpressionSearchFilter  in  loadInto3pane");
+      console.log(ExpressionSearchFilter);
+      QuickFilterManager.defineFilter(ExpressionSearchFilter);
+      QuickFilterManager.textBoxDomId = ExpressionSearchFilter.domId;
       console.log("after defineFilter in loadinto3pane");
       let topWin = Services.wm.getMostRecentWindow("mail:3pane");
       topWin.QuickFilterBarMuxer._bindUI();
       console.log("after _bindUI in loadinto3pane");
       /**/
-      //     ExperssionSearchFilter.initTest();
+      //     ExpressionSearchFilter.initTest();
     } catch (ex) {
       ExpressionSearchLog.logException(ex);
     }
