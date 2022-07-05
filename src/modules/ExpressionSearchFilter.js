@@ -8,8 +8,8 @@
 var EXPORTED_SYMBOLS = ["ExperssionSearchFilter"];
 
 const { nsMsgSearchAttrib: nsMsgSearchAttrib, nsMsgSearchOp: nsMsgSearchOp, nsMsgMessageFlags: nsMsgMessageFlags, nsMsgSearchScope: nsMsgSearchScope } = Ci;
-var  { ExpressionSearchChrome } =  ChromeUtils.import("resource://expressionsearch/modules/es.jsm");
-var { ExpressionSearchLog } =  ChromeUtils.import("resource://expressionsearch/modules/log.jsm");
+var  { ExpressionSearchChrome } =  ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchChrome.jsm");
+var { ExpressionSearchLog } =  ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchLog.jsm");
 var {
   MessageTextFilter,
   QuickFilterManager,
@@ -486,7 +486,7 @@ let ExperssionSearchFilter = {
       aNode.value = desiredValue;
 //      console.log("ExpressionSearchChrome",ExpressionSearchChrome);
 //!!
-//!!var  {ExpressionSearchChrome} =  ChromeUtils.import("resource://expressionsearch/modules/es.jsm");
+//!!var  {ExpressionSearchChrome} =  ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchChrome.jsm");
 
 ExpressionSearchChrome.showHideHelp(aDocument.defaultView, false);
     

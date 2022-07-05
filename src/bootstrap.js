@@ -6,7 +6,7 @@
 //var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // if use custom resouce, refer here
 // http://mdn.beonex.com/en/JavaScript_code_modules/Using.html
-var { ExpressionSearchChrome } = ChromeUtils.import("resource://expressionsearch/modules/es.jsm");
+var { ExpressionSearchChrome } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchChrome.jsm");
 
 const sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
 const userCSS = Services.io.newURI("resource://expressionsearch/skin/overlay.css", null, null);
