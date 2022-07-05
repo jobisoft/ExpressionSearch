@@ -17,7 +17,7 @@
 
   <title>Welcome to the update for Expression Search/GmailUI-NG</title>
   <link rel="stylesheet" href="popup.css" type="text/css">
-  <script type="application/javascript" src="listener.js"></script>
+  <script type="application/javascript" src="/scripts/listener.js"></script>
 </head>
 
 <body>
@@ -49,7 +49,7 @@
       
       <p>Expression Search's features are described further down on this page in more details.</p>
       <p>The transfer to TB 78 is underway. Some features may not work yet. You can report issues at 
-        the home page for TB78: <a href='https://github.com/opto/expression-search-NG/issues'>expression-search-NG.</a>
+        the home page for TB78: <a href="#" data-external-href='https://github.com/opto/expression-search-NG/issues'>expression-search-NG.</a>
        It is gratefully appreciated if you can support the transfer to TB 78 by a <a data-external-href="https://www.paypal.com/donate?hosted_button_id=EMVA9S5N54UEW" href="#">donation.</a> </p>
       </p>
     
@@ -140,22 +140,22 @@
     <b>simple:this subject contains special characters like ( ) ' " - etc</b>
     </p>
     <p>This expression searches all messages in the current folder or view in the <i>subject</i>
-    fields of the message. And the pattern can contain special characters. unlike "subject" search, this search won't suffer from <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=124641'>Bug 124641</a>.
+    fields of the message. And the pattern can contain special characters. unlike "subject" search, this search won't suffer from <a href="#" data-external-href='https://bugzilla.mozilla.org/show_bug.cgi?id=124641'>Bug 124641</a>.
     </p><p>This pattern must be the last pattern. Case <b>sensitive</b>.
     </p></li><li><p>
     
     <b>regex:/^begin/i</b> or <b>re:end$</b> or <b>r:/\d+\s*\d+/</b>
     </p>
-    <p>This expression searches all messages in the current folder or view with <a href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
+    <p>This expression searches all messages in the current folder or view with <a href="#" data-external-href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
     in the <i>subject</i> fields of the message.
     </p><p>This pattern must be the last pattern. Case <b>sensitive</b> unless you have //i.
     </p></li><li><p>
     
     <b>headerre:List-Id=/all-test/i</b> or <b>h:list-id</b> or <b>h:sender=/^Bob/</b> or <b>hr:header~/^value/</b>
     </p>
-    <p>This expression searches all messages in the current folder or view with <a href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
+    <p>This expression searches all messages in the current folder or view with <a href="#" data-external-href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
     in the header of the message. The header should be already saved in Thunderbird's .msf database.
-    You can <a href="https://developer.mozilla.org/en-US/docs/Extensions/Thunderbird/customDBHeaders_Preference">config</a> the headers in 'options/Search More Headers', If you added one header, it will only affect
+    You can <a href="#" data-external-href="https://developer.mozilla.org/en-US/docs/Extensions/Thunderbird/customDBHeaders_Preference">config</a> the headers in 'options/Search More Headers', If you added one header, it will only affect
     newly added emails unless you do 'repaire folder'.
     </p><p>This pattern must be the last pattern. Header is case insensitive, Value is case <b>sensitive</b> unless you have //i.
     If the value is empty, Any message has the header will match.
@@ -163,14 +163,14 @@
     
     <b>fromre:/^begin/i</b> or <b>fr:end$</b>
     </p>
-    <p>This expression searches all messages in the current folder or view with <a href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
+    <p>This expression searches all messages in the current folder or view with <a href="#" data-external-href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
     in the <i>from</i> fields of the message.
     </p><p>This pattern must be the last pattern. Case <b>sensitive</b> unless you have //i.
     </p></li><li><p>
     
     <b>tore:/^begin/i</b> or <b>tr:end$</b>
     </p>
-    <p>This expression searches all messages in the current folder or view with <a href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
+    <p>This expression searches all messages in the current folder or view with <a href="#" data-external-href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
     in the <i>recipients</i>(to/cc/bcc) fields of the message.
     </p><p>This pattern must be the last pattern. Case <b>sensitive</b> unless you have //i.
     </p></li><li><p>
@@ -197,7 +197,7 @@
     <b>before:2011/03/09 07:12:00</b> or <b>be:09 Mar 2011 05:00:00</b> or <b>after:Mar 10, 2011</b> or <b>af:(2011/03/01 -2011/03/09)</b>
     </p>
     <p>This expression searches all messages in the current folder or view within the <i>date</i> range, The
-    date format can be checked <a href='https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date/parse'>Here</a>.
+    date format can be checked <a href="#" data-external-href='https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date/parse'>Here</a>.
     </p></li><li><p>
     
     <b>before:07:12:00</b> or <b>be:5:9</b> or <b>after:03:07:05</b> or <b>af:(3:0 -4:0)</b>
@@ -234,7 +234,7 @@
     
     <b>bodyre:/hello.*world/i</b> or <b>br:test</b>
     </p>
-    <p>This expression searches the body of all messages in the current folder or view with <a href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>. Case sensitive and should be the last pattern.
+    <p>This expression searches the body of all messages in the current folder or view with <a href="#" data-external-href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>. Case sensitive and should be the last pattern.
     Only search <b>offline</b> messages.
     </p></li><li><p>
     
@@ -264,7 +264,7 @@
     <li><p>
     <b>from:-foo from:-bar [...]</b>
     </p>
-    <p>So-called <a href='https://github.com/wangvisual/expression-search/issues/47'>Inverted Search</a>.
+    <p>So-called <a href="#" data-external-href='https://github.com/wangvisual/expression-search/issues/47'>Inverted Search</a>.
     This is a <kbd>not x and not y [...]</kbd> search for the selected attribute (Here: <var>from:</var>).<br/>
     This is the GMail search-equivalent of: <kbd>-foo -bar</kbd>.
     </p></li>
@@ -532,31 +532,31 @@
     <ul><li>
     Shift+RightClick May not work for some versions of Thunderbird.
     </li><li>
-    <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=224392'>Bug 224392</a> - Add ability to filter by attachment name (extension)
+    <a href="#" data-external-href='https://bugzilla.mozilla.org/show_bug.cgi?id=224392'>Bug 224392</a> - Add ability to filter by attachment name (extension)
     </li><li>
-    <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=338761'>Bug 338761</a> - searching body of emails for text doesn't match word-wrapped text
+    <a href="#" data-external-href='https://bugzilla.mozilla.org/show_bug.cgi?id=338761'>Bug 338761</a> - searching body of emails for text doesn't match word-wrapped text
     </li><li>
-    <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=460737'>Bug 460737</a> -  Quickfilter ignores searches for friendly display names from address book contacts, as displayed on message header and message list by default (no or incomplete results for From, To, CC, BCC)
+    <a href="#" data-external-href='https://bugzilla.mozilla.org/show_bug.cgi?id=460737'>Bug 460737</a> -  Quickfilter ignores searches for friendly display names from address book contacts, as displayed on message header and message list by default (no or incomplete results for From, To, CC, BCC)
     </li><li>
-    <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=522886'>Bug 522886</a> - Implement "Recipients" column that shows all recipients (To, CC, and BCC)
+    <a href="#" data-external-href='https://bugzilla.mozilla.org/show_bug.cgi?id=522886'>Bug 522886</a> - Implement "Recipients" column that shows all recipients (To, CC, and BCC)
     </li><li>
-    <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=546925'>Bug 546925</a> - custom header search is non-functional ('Run search on server' of Edit/Find/Search Messages doesn't work any more)
+    <a href="#" data-external-href='https://bugzilla.mozilla.org/show_bug.cgi?id=546925'>Bug 546925</a> - custom header search is non-functional ('Run search on server' of Edit/Find/Search Messages doesn't work any more)
     </li><li>
-    <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=570815'>Bug 570815</a> - (qfwidget) Make Quickfilter optionally available as simple searchbox widget+stickypin (with filter criteria in persistent popup panel &/or dropdown; toolbar customization)
+    <a href="#" data-external-href='https://bugzilla.mozilla.org/show_bug.cgi?id=570815'>Bug 570815</a> - (qfwidget) Make Quickfilter optionally available as simple searchbox widget+stickypin (with filter criteria in persistent popup panel &/or dropdown; toolbar customization)
     </li><li class="bz_closed">
-    <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=124641'>Bug 124641</a> - Thunderbird does not handle multi-line headers correctly when search term spans lines
+    <a href="#" data-external-href='https://bugzilla.mozilla.org/show_bug.cgi?id=124641'>Bug 124641</a> - Thunderbird does not handle multi-line headers correctly when search term spans lines
     </li><li class="bz_closed">
-    <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=363238'>Bug 363238</a> - saved searches fail for searches on x-headers
+    <a href="#" data-external-href='https://bugzilla.mozilla.org/show_bug.cgi?id=363238'>Bug 363238</a> - saved searches fail for searches on x-headers
     </li><li class="bz_closed">
-    <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=474730'>Bug 474730</a> -  should search newest first - searching returns messages in bad order, making searches very time-consuming and irrelevant for large databases
+    <a href="#" data-external-href='https://bugzilla.mozilla.org/show_bug.cgi?id=474730'>Bug 474730</a> -  should search newest first - searching returns messages in bad order, making searches very time-consuming and irrelevant for large databases
     </li><li class="bz_closed">
-    <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=564328'>Bug 564328</a> - Keyboard shortcut Ctrl+F conflict and cmd_find ambiguity, used for both Find in This Message and Quick Filter 
+    <a href="#" data-external-href='https://bugzilla.mozilla.org/show_bug.cgi?id=564328'>Bug 564328</a> - Keyboard shortcut Ctrl+F conflict and cmd_find ambiguity, used for both Find in This Message and Quick Filter 
     </li><li class="bz_closed">
-    <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=600140'>Bug 600140</a> - 'Unread' quick filter hides some unread messages (the beginning of a thread) 
+    <a href="#" data-external-href='https://bugzilla.mozilla.org/show_bug.cgi?id=600140'>Bug 600140</a> - 'Unread' quick filter hides some unread messages (the beginning of a thread) 
     </li><li class="bz_closed">
-    <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=607295'>Bug 607295</a> - Provide UI for new archive granularity and folder structure options
+    <a href="#" data-external-href='https://bugzilla.mozilla.org/show_bug.cgi?id=607295'>Bug 607295</a> - Provide UI for new archive granularity and folder structure options
     </li><li class="bz_closed">
-    <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=625472'>Bug 625472</a> - Quick search processes input after hiding it with escape
+    <a href="#" data-external-href='https://bugzilla.mozilla.org/show_bug.cgi?id=625472'>Bug 625472</a> - Quick search processes input after hiding it with escape
     </li></ul>
     <p>Compared with original GMailUI 0.6, these features are still missing:
     <ul>
@@ -570,10 +570,10 @@
     <h3>Other Extensions</h3>
     You can try the following extensions to make your Thunderbird more convenient.<br/>
     <ul>
-    <!--<li><a href='https://addons.thunderbird.net/en-US/thunderbird/addon/gmail-conversation-view/'>GMail Conversation View</a> and <a href='https://github.com/protz/GMail-Conversation-View/wiki/displaying-your-own-messages-in-the-inbox'>How to display sent messages in Inbox?</a></li>
-    <li><a href='http://kb.mozillazine.org/Keyconfig_extension'>Keyconfig</a></li>
+    <!--<li><a href="#" data-external-href='https://addons.thunderbird.net/en-US/thunderbird/addon/gmail-conversation-view/'>GMail Conversation View</a> and <a href="#" data-external-href='https://github.com/protz/GMail-Conversation-View/wiki/displaying-your-own-messages-in-the-inbox'>How to display sent messages in Inbox?</a></li>
+    <li><a href="#" data-external-href='http://kb.mozillazine.org/Keyconfig_extension'>Keyconfig</a></li>
     -->
-    <li><a href='https://addons.thunderbird.net/en-US/thunderbird/addon/nostalgy_ng/'>Nostalgy++: easy archiving of emails</a></li>
+    <li><a href="#" data-external-href='https://addons.thunderbird.net/en-US/thunderbird/addon/nostalgy_ng/'>Nostalgy++: easy archiving of emails</a></li>
     <li>Other addons proposed by Opera Wang no longer work in TB 78</li></ul>
     
     <h3>Thanks</h3>
@@ -582,9 +582,9 @@
     </li><li>
     Opera Wang 15 years of developing Expression Search/GmailUI
     </li><li>
-    savo_msu - Author of <a href='https://addons.thunderbird.net/af/thunderbird/addon/one-click-search/'>One Click Search</a>
+    savo_msu - Author of <a href="#" data-external-href='https://addons.thunderbird.net/af/thunderbird/addon/one-click-search/'>One Click Search</a>
     </li><li>
-    Kent James - Author of <a href='https://addons.thunderbird.net/en-US/thunderbird/addon/filtaquilla/'>FiltaQuilla</a>
+    Kent James - Author of <a href="#" data-external-href='https://addons.thunderbird.net/en-US/thunderbird/addon/filtaquilla/'>FiltaQuilla</a>
     </li><li>
     Jiten Dedhia - Suggest for 'toonly' search
     </li><li>
@@ -608,12 +608,12 @@
     </li></ul>
     
     <h3>Feedback, Suggestions, and on-going Development</h3>
-    <p>Klaus Buecher/Opto's Home Page for TB 78+: <a href='https://github.com/opto/expression-search-NG'>expression-search-NG</a></p>
-    <p>Opera Wang's Home Page (TB 60): <a href='https://github.com/wangvisual/expression-search'>expression-search</a>, not in active development</p>
-    <p>Ken Mixters Home Page: <a href='http://sites.google.com/site/kmixter/gmailui'>GMailUI</a>, pre 2005</p>
+    <p>Klaus Buecher/Opto's Home Page for TB 78+: <a href="#" data-external-href='https://github.com/opto/expression-search-NG'>expression-search-NG</a></p>
+    <p>Opera Wang's Home Page (TB 60): <a href="#" data-external-href='https://github.com/wangvisual/expression-search'>expression-search</a>, not in active development</p>
+    <p>Ken Mixters Home Page: <a href="#" data-external-href='http://sites.google.com/site/kmixter/gmailui'>GMailUI</a>, pre 2005</p>
         <!--
-      <p>Please send email to <a href='mailto:Opera.Wang+es@gmail.com'>Opera.Wang+es@gmail.com</a> for feedback, suggestions etc</p>
-    <p><a href='https://twitter.com/operawang'>Twitter</a> or <a href='http://weibo.com/operawang'>Weibo</a></p>
+      <p>Please send email to <a href="#" data-external-href='mailto:Opera.Wang+es@gmail.com'>Opera.Wang+es@gmail.com</a> for feedback, suggestions etc</p>
+    <p><a href="#" data-external-href='https://twitter.com/operawang'>Twitter</a> or <a href="#" data-external-href='http://weibo.com/operawang'>Weibo</a></p>
     https://github.com/wangvisual/expression-search-->
     <p>&nbsp;</p>
 

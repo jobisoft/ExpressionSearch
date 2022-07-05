@@ -8,8 +8,8 @@
 var EXPORTED_SYMBOLS = ["ExperssionSearchFilter"];
 
 const { nsMsgSearchAttrib: nsMsgSearchAttrib, nsMsgSearchOp: nsMsgSearchOp, nsMsgMessageFlags: nsMsgMessageFlags, nsMsgSearchScope: nsMsgSearchScope } = Ci;
-var  { ExpressionSearchChrome } =  ChromeUtils.import("chrome://expressionsearch/content/es.jsm");
-var { ExpressionSearchLog } =  ChromeUtils.import("chrome://expressionsearch/content/log.jsm");
+var  { ExpressionSearchChrome } =  ChromeUtils.import("resource://expressionsearch/modules/es.jsm");
+var { ExpressionSearchLog } =  ChromeUtils.import("resource://expressionsearch/modules/log.jsm");
 var {
   MessageTextFilter,
   QuickFilterManager,
@@ -17,7 +17,7 @@ var {
   QuickFilterState,
 } = ChromeUtils.import("resource:///modules/QuickFilterManager.jsm");
 
-var  { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens }  = ChromeUtils.import("chrome://expressionsearch/content/gmailuiParse.js");
+var  { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens }  = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.js");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { GlodaUtils } = ChromeUtils.import("resource:///modules/gloda/GlodaUtils.jsm");// for GlodaUtils.deMime and parseMailAddresses
@@ -486,7 +486,7 @@ let ExperssionSearchFilter = {
       aNode.value = desiredValue;
 //      console.log("ExpressionSearchChrome",ExpressionSearchChrome);
 //!!
-//!!var  {ExpressionSearchChrome} =  ChromeUtils.import("chrome://expressionsearch/content/es.jsm");
+//!!var  {ExpressionSearchChrome} =  ChromeUtils.import("resource://expressionsearch/modules/es.jsm");
 
 ExpressionSearchChrome.showHideHelp(aDocument.defaultView, false);
     

@@ -14,12 +14,13 @@
    "default_locale": "en-US",
   "homepage_url": "https://github.com/opto/expression-search-NG",
   "icons": {
-    "32": "icon.png",
-    "48": "icon.png",
-    "64": "icon.png"
+    "32": "skin/icon.png",
+    "48": "skin/icon.png",
+    "64": "skin/icon.png"
   },
   "background": {
     "scripts": [
+      "scripts/tools.js",
       "ex-background.js"
     ]
   },

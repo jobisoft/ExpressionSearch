@@ -86,7 +86,7 @@
 
 /* if the width is not enough, make others more flexiable to make my box shown */
 #qfb-filter-bar-spacer {
-  /* do in es.jsm based on position */
+  /* do in ExpressionSearchChrome.jsm based on position */
   margin: 0px !important;
   padding: 0px !important;
 }

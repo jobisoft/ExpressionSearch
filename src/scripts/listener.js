@@ -7,10 +7,18 @@
  */
 
 window.document.addEventListener("click", async (event) => {
-  if (event.target.tagName == "A" && event.target.dataset.externalHref) {
-    event.preventDefault();
-    event.stopPropagation();
-    messenger.windows.openDefaultBrowser(event.target.dataset.externalHref);
+  if (event.target.tagName == "A") {
+    if (event.target.dataset.externalHref) {
+      event.preventDefault();
+      event.stopPropagation();
+      messenger.windows.openDefaultBrowser(event.target.dataset.externalHref);
+    }
+    if (event.target.dataset.windowHref) {
+      event.preventDefault();
+      event.stopPropagation();
+      let [url, anchor] = event.target.dataset.windowHref.split("#");
+      messenger.windows.create({type: "popup", url: translateURL(url, anchor)});
+    }
   }
 });
 
@@ -23,7 +31,7 @@ window.document.addEventListener("DOMContentLoaded", async (event) => {
     .replace(/{version}/g, await browser.runtime.getManifest().version)
     .replace(/{appver}/g, browserInfo.version);
   document.body.innerHTML = text;
-  
+
   // Localize.
   i18n.updateDocument();
 
@@ -35,7 +43,7 @@ window.document.addEventListener("DOMContentLoaded", async (event) => {
       if (tooltipId) {
         let [tooltip] = element.querySelectorAll(`#${tooltipId}`);
         tooltip.style.top = `${event.y}px`
-        tooltip.style.left = `${event.x+50}px`
+        tooltip.style.left = `${event.x + 50}px`
         tooltip.style.display = "block";
       }
     })
@@ -52,10 +60,10 @@ window.document.addEventListener("DOMContentLoaded", async (event) => {
         let [tooltip] = element.querySelectorAll(`#${tooltipId}`);
         if (tooltip.style.display != "none") {
           tooltip.style.top = `${event.y}px`
-          tooltip.style.left = `${event.x+50}px`
+          tooltip.style.left = `${event.x + 50}px`
         }
       }
-    })    
+    })
   }
 });
 

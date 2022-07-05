@@ -33,9 +33,9 @@ and it's easy to carelessly use the wrong one. We had a bunch of these issues (e
 But the code that's using resource://gre/ URLs for app content, or vice versa, is still technically wrong. */
 
 
-//.import("chrome://expressionsearch/content/aop.jsm");
-//  //Cu.import("chrome://expressionsearch/content/common.js");
-//   var {ExpressionSearchCommon} = ChromeUtils.import("chrome://expressionsearch/content/common.js");
+//.import("resource://expressionsearch/modules/aop.jsm");
+//  //Cu.import("resource://expressionsearch/modules/common.js");
+//   var {ExpressionSearchCommon} = ChromeUtils.import("resource://expressionsearch/modules/common.js");
 
 // for hook functions for attachment search
 var { SearchSpec } = ChromeUtils.import("resource:///modules/SearchSpec.jsm");
@@ -81,30 +81,30 @@ var {
 //Cu.import("resource:///modules/gloda/msg_search.js");
 //if (!ExperssionSearchFilter  )     
 //   console.log("vor  import ExperssionSearchFilter", ExperssionSearchFilter);
-//  var {ExperssionSearchFilter} = ChromeUtils.import("chrome://expressionsearch/content/ExpressionSearchFilter1.js");
+//  var {ExperssionSearchFilter} = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter1.js");
 //   console.log("end importModulesit", ExperssionSearchFilter);
 
 
-//Cu.import("chrome://expressionsearch/content/gmailuiParse.js");
-//  var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("chrome://expressionsearch/content/gmailuiParse.js");
+//Cu.import("resource://expressionsearch/modules/gmailuiParse.js");
+//  var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.js");
 
 
 console.log("vor import ExpressionSearchLog");
-var { ExpressionSearchLog } = ChromeUtils.import("chrome://expressionsearch/content/log.jsm"); // load log first
+var { ExpressionSearchLog } = ChromeUtils.import("resource://expressionsearch/modules/log.jsm"); // load log first
 console.log("nach import ExpressionSearchLog", ExpressionSearchLog);
 
 
 console.log("nochmal GMAILUIParse in ");
-var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("chrome://expressionsearch/content/gmailuiParse.js");
+var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.js");
 console.log("fertig GMAILUIParse in ");
 
 
 console.log("vor ExpressionSearchaop");
-var { ExpressionSearchaop } = ChromeUtils.import("chrome://expressionsearch/content/aop.jsm");
+var { ExpressionSearchaop } = ChromeUtils.import("resource://expressionsearch/modules/aop.jsm");
 console.log("nach ExpressionSearchaop", ExpressionSearchaop);
 console.log("vor ExpressionSearchCommon");
 
-var { ExpressionSearchCommon } = ChromeUtils.import("chrome://expressionsearch/content/common.js");
+var { ExpressionSearchCommon } = ChromeUtils.import("resource://expressionsearch/modules/common.js");
 console.log("nach ExpressionSearchCommon");
 
 
@@ -138,7 +138,7 @@ var ExpressionSearchChrome = {
   init: function () {
     //debugger;
     console.log("ExpressionSearchChrome init", "loaded", this.loaded);
-    //  var  {ExpressionSearchLog} =  ChromeUtils.import("chrome://expressionsearch/content/log.jsm"); // load log first
+    //  var  {ExpressionSearchLog} =  ChromeUtils.import("resource://expressionsearch/modules/log.jsm"); // load log first
     try {
       console.log("Expression Search: init..importmodules.");//, false, true);
       this.importModules();
@@ -177,13 +177,13 @@ var ExpressionSearchChrome = {
     
     But the code that's using resource://gre/ URLs for app content, or vice versa, is still technically wrong. */
 
-    //Cu.import("chrome://expressionsearch/content/gmailuiParse.js");
-    //var {ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens} = ChromeUtils.import("chrome://expressionsearch/content/gmailuiParse.js");
+    //Cu.import("resource://expressionsearch/modules/gmailuiParse.js");
+    //var {ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens} = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.js");
 
-    //.import("chrome://expressionsearch/content/aop.jsm");
-    //  //Cu.import("chrome://expressionsearch/content/common.js");
-    //  var {ExpressionSearchCommon} = ChromeUtils.import("chrome://expressionsearch/content/common.js");
-    // too late var  {ExpressionSearchLog} =  ChromeUtils.import("chrome://expressionsearch/content/log.jsm"); // load log first
+    //.import("resource://expressionsearch/modules/aop.jsm");
+    //  //Cu.import("resource://expressionsearch/modules/common.js");
+    //  var {ExpressionSearchCommon} = ChromeUtils.import("resource://expressionsearch/modules/common.js");
+    // too late var  {ExpressionSearchLog} =  ChromeUtils.import("resource://expressionsearch/modules/log.jsm"); // load log first
     //console.log("nach import ExpressionSearchLog", ExpressionSearchLog);
 
 
@@ -191,23 +191,23 @@ var ExpressionSearchChrome = {
       console.log("vor import ExpressionSearchLog in importmodules");
       if (!ExpressionSearchLog ) {
         console.log("ExpressionSearchLog  undefined");
-    //    {ExpressionSearchLog} =  ChromeUtils.import("chrome://expressionsearch/content/log.jsm"); // load log first
-      var  { ExpressionSearchLog } =  ChromeUtils.import("chrome://expressionsearch/content/log.jsm"); // load log first
+    //    {ExpressionSearchLog} =  ChromeUtils.import("resource://expressionsearch/modules/log.jsm"); // load log first
+      var  { ExpressionSearchLog } =  ChromeUtils.import("resource://expressionsearch/modules/log.jsm"); // load log first
     };
       console.log("nach import ExpressionSearchLog in importmodules", ExpressionSearchLog);
     */
     /*
     console.log("vor ExpressionSearchaop");
-    var { ExpressionSearchaop } = ChromeUtils.import("chrome://expressionsearch/content/aop.jsm");
+    var { ExpressionSearchaop } = ChromeUtils.import("resource://expressionsearch/modules/aop.jsm");
     console.log("nach ExpressionSearchaop", ExpressionSearchaop); 
     */
 
     /*
-    var { ExpressionSearchCommon } = ChromeUtils.import("chrome://expressionsearch/content/common.js");
+    var { ExpressionSearchCommon } = ChromeUtils.import("resource://expressionsearch/modules/common.js");
     
     if (!ExpressionSearchComputeExpression ) {
       console.log("nochmal GMAILUIParse in importmodules");
-      var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("chrome://expressionsearch/content/gmailuiParse.js");
+      var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.js");
       console.log("fertig GMAILUIParse in importmodules");
     
     }
@@ -216,9 +216,9 @@ var ExpressionSearchChrome = {
     //console.log(this.loaded);
     //if (this.loaded==0) ExpressionSearchLog.log("Expression Search is NOT restartless! Please restart Thunderbird!", 1);
     //this.loaded=1;
-    //  var { ExperssionSearchFilter } = ChromeUtils.import("chrome://expressionsearch/content/ExpressionSearchFilter.js");
+    //  var { ExperssionSearchFilter } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter.js");
     console.log(" vor ExperssionSearchFilter");
-    ExperssionSearchFilter = ChromeUtils.import("chrome://expressionsearch/content/ExpressionSearchFilter.js").ExperssionSearchFilter;
+    ExperssionSearchFilter = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter.js").ExperssionSearchFilter;
     console.log("ExperssionSearchFilter");
     console.log(ExperssionSearchFilter);
 
@@ -256,7 +256,7 @@ var ExpressionSearchChrome = {
    
    // to call gloda search, actually no need
       //Cu.import("resource:///modules/gloda/msg_search.js");
-      var {ExperssionSearchFilter} = ChromeUtils.import("chrome://expressionsearch/content/ExpressionSearchFilter.js");
+      var {ExperssionSearchFilter} = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter.js");
       console.log("end importModulesit");
   
   
@@ -286,7 +286,7 @@ var ExpressionSearchChrome = {
         }
       }
     };
-    let uri = Services.io.newURI("chrome://expressionsearch/content/defaults.js");
+    let uri = Services.io.newURI("resource://expressionsearch/modules/defaults.js");
     try {
       //! not working      this.mozIJSSubScriptLoader.loadSubScript(uri.spec, prefLoaderScope);  setCharPref
       //debugger;
@@ -356,7 +356,7 @@ var ExpressionSearchChrome = {
   },
 
   initFunctionHook: function (win) {
-    //    if (!ExpressionSearchaop)  var { ExpressionSearchaop } = ChromeUtils.import("chrome://expressionsearch/content/aop.jsm");
+    //    if (!ExpressionSearchaop)  var { ExpressionSearchaop } = ChromeUtils.import("resource://expressionsearch/modules/aop.jsm");
     if (typeof (win.QuickFilterBarMuxer) == 'undefined' || typeof (win.QuickFilterBarMuxer.reflectFiltererState) == 'undefined') return;
 
     win._expression_search.hookedFunctions.push(ExpressionSearchaop.around({ target: win.QuickFilterBarMuxer, method: 'reflectFiltererState' }, function (invocation) {
@@ -1298,14 +1298,14 @@ var ExpressionSearchChrome = {
       ["about:crashes", "", function () { ExpressionSearchCommon.openTab('about:crashes'); }],
       ["about:memory", "", function () { ExpressionSearchCommon.openTab('about:memory?verbose'); }],
       [''], // items before seprator and the seprator it self will only shown if verbose
-      [this.strBundle.GetStringFromName("dialog.settings"), "chrome://messenger/skin/accountcentral/account-settings.png", function () { ExpressionSearchCommon.openWindow('chrome://expressionsearch/content/esPrefDialog.xhtml'); }],
+      [this.strBundle.GetStringFromName("dialog.settings"), "chrome://messenger/skin/accountcentral/account-settings.png", function () { ExpressionSearchCommon.openWindow('resource://expressionsearch/modules/esPrefDialog.xhtml'); }],
       [this.strBundle.GetStringFromName("option.help"), "chrome://global/skin/icons/question-64.png", function () { ExpressionSearchCommon.showHelpFile('expressionsearch.helpfile'); }],
       [this.strBundle.GetStringFromName("donate.label"), this.strBundle.GetStringFromName("donate.image"), function () { ExpressionSearchCommon.openDonateLinkExternaly(ExpressionSearchChrome.strBundle.GetStringFromName("donate.pay")); }],
       //     ["Addon @ Mozilla", "chrome://mozapps/skin/extensions/extensionGeneric.png", function(){ ExpressionSearchCommon.openLinkExternally("https://addons.thunderbird.net/en-US/thunderbird/addon/gmailui"); }],
       //     ["Addon @ GitHub", "chrome://awsomeAutoArchive/content/github.png", function(){ ExpressionSearchCommon.openLinkExternally("https://github.com/opto/expression-search-NG"); }],
       //     ["Addon @ GitHub", "chrome://mozapps/skin/extensions/extensionGeneric.png", function(){ ExpressionSearchCommon.openLinkExternally("https://github.com/opto/expression-search-NG"); }],
       ["Report Bug", "chrome://global/skin/icons/information-32.png", function () { ExpressionSearchCommon.openLinkExternally("https://github.com/opto/expression-search-NG/issues"); }],
-      [this.strBundle.GetStringFromName("about.about"), "resource://expressionsearch/skin/statusbar_icon.png", function () { ExpressionSearchCommon.openWindow('chrome://expressionsearch/content/about.xhtml'); }],
+      [this.strBundle.GetStringFromName("about.about"), "resource://expressionsearch/skin/statusbar_icon.png", function () { ExpressionSearchCommon.openWindow('resource://expressionsearch/modules/about.xhtml'); }],
       //      [this.strBundle.GetStringFromName("about.about"), "resource://expressionsearch/skin/statusbar_icon.png", function(){ ExpressionSearchCommon.openWindow('chrome://messenger/content/SearchDialog.xhtml'); }],
     ].forEach(function (menu) {
       ExpressionSearchChrome.addMenuItem(menu, doc, menupopup);

@@ -204,7 +204,7 @@
         "message": "Header (RegEx)"
     },
     "info.after": {
-        "message": "after:Mar 10, 2011\\naf:(2011/03/01 -2011/03/09)\\nafter:Mon, 25 Dec 1995 13:30:00 GMT\\naf:(3:0 -4:0) will search for messages in current view that date between 3am to 4am EVERY day"
+        "message": "after:Mar 10, 2011\naf:(2011/03/01 -2011/03/09)\nafter:Mon, 25 Dec 1995 13:30:00 GMT\naf:(3:0 -4:0) will search for messages in current view that date between 3am to 4am EVERY day"
     },
     "info.all": {
         "message": "search message within from, to, cc, or subject fields, and the body"
@@ -216,7 +216,7 @@
         "message": "BCC field contains"
     },
     "info.before": {
-        "message": "before:2011/03/09 07:12:00\\nbe:09 Mar 2011 05:00:00"
+        "message": "before:2011/03/09 07:12:00\nbe:09 Mar 2011 05:00:00"
     },
     "info.blank": {
         "message": "Please type keywords to search, click this line for help"
@@ -225,31 +225,31 @@
         "message": "Body contains"
     },
     "info.bodyre": {
-        "message": "bodyre:/hello.*world/i\\nBody match\\nWarning! May crash your Thunderbird"
+        "message": "bodyre:/hello.*world/i\nBody match\nWarning! May crash your Thunderbird"
     },
     "info.cc": {
         "message": "CC field contains"
     },
     "info.date": {
-        "message": "date:yyyy/mm/dd hh:mm:ss\\ndate:2011/01\\ndate:2011/01/03"
+        "message": "date:yyyy/mm/dd hh:mm:ss\ndate:2011/01\ndate:2011/01/03"
     },
     "info.days": {
-        "message": "age:3 or older_than:today or days:(3 -5)\\ntoday means -1, week means 7 and month means 30"
+        "message": "age:3 or older_than:today or days:(3 -5)\ntoday means -1, week means 7 and month means 30"
     },
     "info.disable": {
         "message": "You can disable this tooltip in option dialog"
     },
     "info.filename": {
-        "message": "filename:foo.doc or fi:image or fn:msword or file:html\\nsearches for an attachment name or type"
+        "message": "filename:foo.doc or fi:image or fn:msword or file:html\nsearches for an attachment name or type"
     },
     "info.from": {
-        "message": "from:(Alice or Bob)\\nSearches From field"
+        "message": "from:(Alice or Bob)\nSearches From field"
     },
     "info.fromre": {
-        "message": "fromre:/^[a-d].*[m-z]$/i\\nSearches From field using regular expression"
+        "message": "fromre:/^[a-d].*[m-z]$/i\nSearches From field using regular expression"
     },
     "info.fromto": {
-        "message": "fromto:(Alice)\\nFrom, To, CC or BCC field contains"
+        "message": "fromto:(Alice)\nFrom, To, CC or BCC field contains"
     },
     "info.gloda": {
         "message": "Trigger gloda search if enabled"
@@ -267,28 +267,28 @@
         "message": "n:8 or nt:7week or newer_than:1year"
     },
     "info.only": {
-        "message": "only:tom\\ntom should be the only recipients in to field"
+        "message": "only:tom\ntom should be the only recipients in to field"
     },
     "info.regex": {
-        "message": "regex:/^begin/i or re:end$ or r:/\\d+\\s*\\d+/\\nSubject matches"
+        "message": "regex:/^begin/i or re:end$ or r:/\\d+\\s*\\d+/\nSubject matches"
     },
     "info.simple": {
-        "message": "simple:hello'\\nSubject field contains, support special characters"
+        "message": "simple:hello'\nSubject field contains, support special characters"
     },
     "info.size": {
-        "message": "size:10 or size:1.4M\\nMessage Size big than"
+        "message": "size:10 or size:1.4M\nMessage Size big than"
     },
     "info.smaller": {
-        "message": "smaller:1G or sm:1024\\nMessage Size less than"
+        "message": "smaller:1G or sm:1024\nMessage Size less than"
     },
     "info.status": {
-        "message": "is:replied or i:UnRead or status:Forwarded or status:F\\nThe status can be one of Replied, Read, Marked/Star, Forwarded, UnRead, New, ImapDeleted or Attachment."
+        "message": "is:replied or i:UnRead or status:Forwarded or status:F\nThe status can be one of Replied, Read, Marked/Star, Forwarded, UnRead, New, ImapDeleted or Attachment."
     },
     "info.subject": {
-        "message": "subject:(Hello -World!)\\nSearches Subject to Contains Hello but not World!"
+        "message": "subject:(Hello -World!)\nSearches Subject to Contains Hello but not World!"
     },
     "info.tag": {
-        "message": "tag:Important\\nTag contains\\ntag:NA means no tag"
+        "message": "tag:Important\nTag contains\ntag:NA means no tag"
     },
     "info.to": {
         "message": "To or CC field contains"
@@ -297,7 +297,7 @@
         "message": "To fileld contains"
     },
     "info.tore": {
-        "message": "tore:/^[a-d].*[m-z]$/i\\nSearches recipients(To/Cc/Bcc) field using regular expression"
+        "message": "tore:/^[a-d].*[m-z]$/i\nSearches recipients(To/Cc/Bcc) field using regular expression"
     },
     "option.help": {
         "message": "Help"
@@ -309,7 +309,7 @@
         "message": "Subject (Long)"
     },
     "textbox.emptyText.base": {
-        "message": "Expression Search... #1"
+        "message": "Expression Search..."
     },
     "toRegex": {
         "message": "Recipients (To/Cc/Bcc RegEx)"

@@ -4,7 +4,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <title>Expression Search-NG</title>
-  <script type="application/javascript" src="listener.js"></script>
+  <script type="application/javascript" src="/scripts/listener.js"></script>
   <style type="text/css">
     body {
       color: black;
@@ -133,7 +133,7 @@
         </p>
         <p>This expression searches all messages in the current folder or view in the <i>subject</i>
           fields of the message. And the pattern can contain special characters. unlike "subject" search, this search
-          won't suffer from <a href='https://bugzilla.mozilla.org/show_bug.cgi?id=124641'>Bug 124641</a>.
+          won't suffer from <a href="#" data-external-href='https://bugzilla.mozilla.org/show_bug.cgi?id=124641'>Bug 124641</a>.
         </p>
         <p>This pattern must be the last pattern. Case <b>sensitive</b>.
         </p>
@@ -144,7 +144,7 @@
           <b>regex:/^begin/i</b> or <b>re:end$</b> or <b>r:/\d+\s*\d+/</b>
         </p>
         <p>This expression searches all messages in the current folder or view with <a
-            href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
+            href="#" data-external-href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
           in the <i>subject</i> fields of the message.
         </p>
         <p>This pattern must be the last pattern. Case <b>sensitive</b> unless you have //i.
@@ -156,10 +156,10 @@
           <b>headerre:List-Id=/all-test/i</b> or <b>h:list-id</b> or <b>h:sender=/^Bob/</b> or <b>hr:header~/^value/</b>
         </p>
         <p>This expression searches all messages in the current folder or view with <a
-            href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
+            href="#" data-external-href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
           in the header of the message. The header should be already saved in Thunderbird's .msf database.
           You can <a
-            href="https://developer.mozilla.org/en-US/docs/Extensions/Thunderbird/customDBHeaders_Preference">config</a>
+            href="#" data-external-href="https://developer.mozilla.org/en-US/docs/Extensions/Thunderbird/customDBHeaders_Preference">config</a>
           the headers in 'options/Search More Headers', If you added one header, it will only affect
           newly added emails unless you do 'repaire folder'.
         </p>
@@ -174,7 +174,7 @@
           <b>fromre:/^begin/i</b> or <b>fr:end$</b>
         </p>
         <p>This expression searches all messages in the current folder or view with <a
-            href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
+            href="#" data-external-href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
           in the <i>from</i> fields of the message.
         </p>
         <p>This pattern must be the last pattern. Case <b>sensitive</b> unless you have //i.
@@ -186,7 +186,7 @@
           <b>tore:/^begin/i</b> or <b>tr:end$</b>
         </p>
         <p>This expression searches all messages in the current folder or view with <a
-            href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
+            href="#" data-external-href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>
           in the <i>recipients</i>(to/cc/bcc) fields of the message.
         </p>
         <p>This pattern must be the last pattern. Case <b>sensitive</b> unless you have //i.
@@ -229,7 +229,7 @@
         </p>
         <p>This expression searches all messages in the current folder or view within the <i>date</i> range, The
           date format can be checked <a
-            href='https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date/parse'>Here</a>.
+            href="#" data-external-href='https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Date/parse'>Here</a>.
         </p>
       </li>
       <li>
@@ -286,7 +286,7 @@
           <b>bodyre:/hello.*world/i</b> or <b>br:test</b>
         </p>
         <p>This expression searches the body of all messages in the current folder or view with <a
-            href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>. Case
+            href="#" data-external-href='https://developer.mozilla.org/en/JavaScript/Guide/Regular_Expressions'>Regular Expressions</a>. Case
           sensitive and should be the last pattern.
           Only search <b>offline</b> messages.
         </p>
@@ -333,7 +333,7 @@
         <p>
           <b>from:-foo from:-bar [...]</b>
         </p>
-        <p>So-called <a href='https://github.com/wangvisual/expression-search/issues/47'>Inverted Search</a>.
+        <p>So-called <a href="#" data-external-href='https://github.com/wangvisual/expression-search/issues/47'>Inverted Search</a>.
           This is a <kbd>not x and not y [...]</kbd> search for the selected attribute (Here: <var>from:</var>).<br />
           This is the GMail search-equivalent of: <kbd>-foo -bar</kbd>.
         </p>

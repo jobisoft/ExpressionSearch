@@ -6,7 +6,7 @@
 //var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // if use custom resouce, refer here
 // http://mdn.beonex.com/en/JavaScript_code_modules/Using.html
-var { ExpressionSearchChrome } = ChromeUtils.import("chrome://expressionsearch/content/es.jsm");
+var { ExpressionSearchChrome } = ChromeUtils.import("resource://expressionsearch/modules/es.jsm");
 
 const sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
 const userCSS = Services.io.newURI("resource://expressionsearch/skin/overlay.css", null, null);
@@ -178,10 +178,14 @@ function shutdown(aData, aReason) {
     ExpressionSearchChrome.cleanup();
   } catch (err) { Cu.reportError(err); }
   
-  Services.strings.flushBundles(); // clear string bundles
-  ["aop", "log", "es"].forEach(function (file) {
-    Cu.unload("chrome://expressionsearch/content/" + file + ".jsm");
-  });
+  // Unload JSMs of this add-on
+  for (let module of Cu.loadedModules) {
+    let [schema, , namespace] = module.split("/");
+    if (schema == "resource:" && namespace == "expressionsearch") {
+      console.log("Unloading module", module);
+      Cu.unload(module);
+    }
+  } 
 
   try {
     ExpressionSearchChrome = null;

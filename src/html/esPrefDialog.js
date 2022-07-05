@@ -3,17 +3,6 @@
 
 "use strict";
 
-function translateURL(url, anchor) {
-  if (typeof (anchor) == 'undefined') anchor = '';
-  if (url.indexOf(':') != -1)
-    return url + anchor;
-  try {
-    return browser.i18n.getMessage(url) + anchor;
-  } catch (e) {
-    return url + anchor;
-  }
-}
-
 async function onLoad() {
   /*let folderPicker = document.getElementById("esNewFolderPicker");
   if (folderPicker.value == '') return;

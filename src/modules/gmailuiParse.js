@@ -17,7 +17,7 @@
 "use strict";
 var EXPORTED_SYMBOLS = ["ExpressionSearchComputeExpression", "ExpressionSearchExprToStringInfix", "ExpressionSearchTokens"];
 
-var {ExpressionSearchLog} = ChromeUtils.import("chrome://expressionsearch/content/log.jsm");
+var {ExpressionSearchLog} = ChromeUtils.import("resource://expressionsearch/modules/log.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 let strings = Services.strings.createBundle('chrome://expressionsearch/locale/ExpressionSearch.properties');
 var ExpressionSearchTokens = {

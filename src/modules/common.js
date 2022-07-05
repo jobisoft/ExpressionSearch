@@ -10,7 +10,7 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 const ADDON_ID = "expressionsearch@opto.one";
 var EXPORTED_SYMBOLS = ["ExpressionSearchCommon"];
 
-//var {notifyTools}  =  ChromeUtils.import("chrome://expressionsearch/content/notifyTools.js");
+//var {notifyTools}  =  ChromeUtils.import("resource://expressionsearch/modules/notifyTools.js");
 
 
 

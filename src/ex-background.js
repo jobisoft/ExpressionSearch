@@ -9,12 +9,23 @@
 
 messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
   switch (info.command) {
-    case "showHelp":
-      console.log({info});
-        // Since you use links in your html, create the page in a tab to have navigation.
-        // I would suggest to reduce this page to help topics only.
-        messenger.tabs.create({ url: info.url });
-        //messenger.windows.create({ url: info.url, type: "popup", width: 910, height: 750, });
+    case "showPage":
+    console.log(info);
+    switch (info.type) {
+        case "tab":
+          info.createData.url = translateURL(info.url, info.anchor);
+          browser.tabs.create(info.createData);
+          break;
+        case "window":
+          info.createData.url = translateURL(info.url, info.anchor);
+          console.log(info.createData);
+
+          browser.windows.create(info.createData);
+          break;
+        case "external":
+          browser.windows.openDefaultBrowser(info.url);
+          break;
+      }
       return;
       break;
   }
@@ -51,7 +62,6 @@ messenger.runtime.onInstalled.addListener(async ({ reason, temporary }) => {
 
 async function main() {
   await messenger.BootstrapLoader.registerChromeUrl([
-    ["content", "expressionsearch", "content/"],
     ["resource", "expressionsearch", ""],
     ["locale", "expressionsearch", "en-US", "locale/en-US/"],
     ["locale", "expressionsearch", "de", "locale/de/"]
