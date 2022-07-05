@@ -1,6 +1,7 @@
 "use strict";
 
 var { ExpressionSearchChrome } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchChrome.jsm");
+var { QuickFilterManager } = ChromeUtils.import("resource:///modules/QuickFilterManager.jsm");
 
 const sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
 const userCSS = Services.io.newURI("resource://expressionsearch/skin/overlay.css", null, null);
@@ -74,6 +75,9 @@ function shutdown(aData, aReason) {
     }
     ExpressionSearchChrome.cleanupPrefs();
   } catch (err) { Cu.reportError(err); }
+  
+
+  QuickFilterManager.killFilter("expression-search-filter");
   
   // Unload JSMs of this add-on
   for (let module of Cu.loadedModules) {

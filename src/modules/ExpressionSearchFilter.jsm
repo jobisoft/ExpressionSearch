@@ -54,8 +54,6 @@ let platformIsMac = (AppConstants.platform == "macosx" ? true : false);
 let haveBodyMapping = {}; // folderURI+messageKey => true (haveBody)
 let badREs = {};
 
-var termsAdded = false;
-
 function _getRegEx(aSearchValue) {
   /*
    * If there are no flags added, you can add a regex expression without
@@ -81,12 +79,9 @@ function _getRegEx(aSearchValue) {
   return regexp;
 }
 
+// File scope code is being executed the first time the JSM is loaded. But on reload, the terms may
+// point to dead code (for example nsMsgSearchScope), so wee need to find a way to unload terms.
 (function AddExpressionSearchCustomerTerms() {
-  if (termsAdded) {
-    return;
-  }
-  termsAdded = true;
-
   function customerTermBase(nameId, Operators) {
     let self = this; // In constructors, this is always your instance. Just for safe.
     self.id = "expressionsearch#" + nameId;
@@ -353,21 +348,21 @@ function _getRegEx(aSearchValue) {
     return emitterInstance.found ^ (aSearchOp == nsMsgSearchOp.DoesntMatch);
   });
 
-  MailServices.filters.addCustomTerm(bccSearch);
-  MailServices.filters.addCustomTerm(toSomebodyOnly);
-  MailServices.filters.addCustomTerm(subjectRegex);
-  MailServices.filters.addCustomTerm(subjectSimple);
-  MailServices.filters.addCustomTerm(headerRegex);
-  MailServices.filters.addCustomTerm(fromRegex);
-  MailServices.filters.addCustomTerm(toRegex);
-  MailServices.filters.addCustomTerm(dayTime);
-  MailServices.filters.addCustomTerm(dateMatch);
-  MailServices.filters.addCustomTerm(attachmentNameOrType);
-  MailServices.filters.addCustomTerm(bodyRegex);
-})();
+  if (!MailServices.filters.getCustomTerm("expressionsearch#Bcc") ) { console.log("Adding Bcc"); MailServices.filters.addCustomTerm(bccSearch);}
+  if (!MailServices.filters.getCustomTerm("expressionsearch#toSomebodyOnly") ) { console.log("Adding toSomebodyOnly"); MailServices.filters.addCustomTerm(toSomebodyOnly);}
+  if (!MailServices.filters.getCustomTerm("expressionsearch#subjectRegex") ) { console.log("Adding subjectRegex"); MailServices.filters.addCustomTerm(subjectRegex);}
+  if (!MailServices.filters.getCustomTerm("expressionsearch#subjectSimple") ) { console.log("Adding subjectSimple"); MailServices.filters.addCustomTerm(subjectSimple);}
+  if (!MailServices.filters.getCustomTerm("expressionsearch#headerRegex") ) { console.log("Adding headerRegex"); MailServices.filters.addCustomTerm(headerRegex);}
+  if (!MailServices.filters.getCustomTerm("expressionsearch#fromRegex") ) { console.log("Adding fromRegex"); MailServices.filters.addCustomTerm(fromRegex);}
+  if (!MailServices.filters.getCustomTerm("expressionsearch#toRegex") ) { console.log("Adding toRegex"); MailServices.filters.addCustomTerm(toRegex);}
+  if (!MailServices.filters.getCustomTerm("expressionsearch#dayTime") ) { console.log("Adding dayTime"); MailServices.filters.addCustomTerm(dayTime);}
+  if (!MailServices.filters.getCustomTerm("expressionsearch#dateMatch") ) { console.log("Adding dateMatch"); MailServices.filters.addCustomTerm(dateMatch);}
+  if (!MailServices.filters.getCustomTerm("expressionsearch#attachmentNameOrType") ) { console.log("Adding attachmentNameOrType"); MailServices.filters.addCustomTerm(attachmentNameOrType);}
+  if (!MailServices.filters.getCustomTerm("expressionsearch#bodyRegex") ) { console.log("Adding bodyRegex"); MailServices.filters.addCustomTerm(bodyRegex);}
+})()
 
 let ExpressionSearchFilter = {
-  name: "expression",
+  name: "expression-search-filter",
   domId: "expression-search-textbox",
 
   // request to create virtual folder, set to the ExpressionSearchChrome when need to create
@@ -505,6 +500,7 @@ let ExpressionSearchFilter = {
     aFromPFP
   ) {
     console.log("reflectInDOM");
+
     //PFP: PostFilterProcess, the second value PFP returns
     // Update the text if it has changed (linux does weird things with empty
     //  text if we're transitioning emptytext to emptytext)

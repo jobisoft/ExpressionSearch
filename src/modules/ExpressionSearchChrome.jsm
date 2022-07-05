@@ -67,7 +67,6 @@ var {
 } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
 var { ExpressionSearchAOP } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchAOP.jsm");
 var { ExpressionSearchCommon } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchCommon.jsm");
-var ExpressionSearchFilter = {};
 
 var ExpressionSearchChrome = {
   // if last key is Enter
@@ -83,7 +82,6 @@ var ExpressionSearchChrome = {
   options: {}, // preference strings
 
   init: function () {
-    ExpressionSearchFilter = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter.jsm").ExpressionSearchFilter;
     this.initPrefs();
   },
 
@@ -484,6 +482,7 @@ var ExpressionSearchChrome = {
       me.isEnter = 1;
       let panel = win.document.getElementById("qfb-text-search-upsell");
       if (typeof (searchValue) != 'undefined' && searchValue != '') {
+        let { ExpressionSearchFilter } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter.jsm");
         if (event.ctrlKey || event.metaKey) { // create quick search folder
           ExpressionSearchFilter.latchQSFolderReq = me;
           this._fireCommand(this);
@@ -1016,10 +1015,15 @@ var ExpressionSearchChrome = {
         threadPane.addEventListener("contextmenu", me.onContextMenu, true);
       };
       
-      QuickFilterManager.defineFilter(ExpressionSearchFilter);
-      QuickFilterManager.textBoxDomId = ExpressionSearchFilter.domId;
-      let topWin = Services.wm.getMostRecentWindow("mail:3pane");
-      topWin.QuickFilterBarMuxer._bindUI();
+      // This only needs to be done once after the first window is loaded, the_bindUI() call
+      // also does not seem to be needed for every new window.
+      if (!ExpressionSearchChrome.filterAdded) {
+        let { ExpressionSearchFilter } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter.jsm");
+        QuickFilterManager.defineFilter(ExpressionSearchFilter);
+        QuickFilterManager.textBoxDomId = ExpressionSearchFilter.domId;
+        ExpressionSearchChrome.filterAdded = true;
+        win.QuickFilterBarMuxer._bindUI();
+      }
     } catch (ex) {
       ExpressionSearchLog.logException(ex);
     }
