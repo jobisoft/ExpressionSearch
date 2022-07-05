@@ -16,10 +16,12 @@
 //Changes for TB 78+ (c) by Klaus Buecher/opto 2020-2021
 "use strict";
 var EXPORTED_SYMBOLS = ["ExpressionSearchComputeExpression", "ExpressionSearchExprToStringInfix", "ExpressionSearchTokens"];
+var { ExtensionParent } = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
+var extension = ExtensionParent.GlobalManager.getExtension("expressionsearch@opto.one");
 
 var {ExpressionSearchLog} = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchLog.jsm");
 var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-let strings = Services.strings.createBundle('chrome://expressionsearch/locale/ExpressionSearch.properties');
+
 var ExpressionSearchTokens = {
   tokenDict: { from: ['f'], fromre: ['fr'], to: ['t', 'toorcc'], tore: ['tr'], tonocc: ['tn'], cc: ['c'], bcc: ['bc'], only: ['o'], subject: ['s'], size: ['si', 'larger'], smaller: ['sm'],
                   body:['b'], attachment:['a'], tag: ['l', 'label'], before:['be'], after: ['af'], date: ['d'], bodyre: ['br'],
@@ -30,7 +32,7 @@ var ExpressionSearchTokens = {
   allTokens: '', // 'simple|regex|re|r|date|d|filename|fi|fn...i|before|be|after|af'
   lastTokens: [ 'simple', 'regex', 'headerre', 'bodyre', 'fromre', 'tore' ], // tokens that should be the last one and no more tokens will be checked
   slowTokens: [ 'body', 'filename', 'bodyre' ], // tokens that should search later than others
-  tokenInfo: { ' ': strings.GetStringFromName('info.blank') }, // others will be added through init
+  tokenInfo: { ' ': extension.localeData.localizeMessage('info.blank') }, // others will be added through init
   mostFit: function(input) {
     let ret = { first: " ", match: {}, matchString: ' ', info: ' ', alias: ' ' };
     let distance = 100;
@@ -50,12 +52,12 @@ var ExpressionSearchTokens = {
     if ( typeof(ExpressionSearchTokens.tokenDict[ret.first]) != 'undefined' ) ret.alias = ret.first + " ( " + ExpressionSearchTokens.tokenDict[ret.first].sort().join(', ') + " )";
     if ( Object.keys(ret.match).length == 0 ) ret.match = ExpressionSearchTokens.tokenDict;
     ret.matchString = Object.keys(ret.match).sort().join(', ');
-    if ( ret.alias == ' ' ) ret.alias = strings.GetStringFromName('info.disable');
+    if ( ret.alias == ' ' ) ret.alias = extension.localeData.localizeMessage('info.disable');
     return ret;
   },
   init: function() { // init allTokenArray tokenMap allTokens tokenInfo
     for ( let token_standard_name in this.tokenDict ) {
-      this.tokenInfo[token_standard_name] = strings.GetStringFromName('info.' + token_standard_name);
+      this.tokenInfo[token_standard_name] = extension.localeData.localizeMessage('info.' + token_standard_name);
       this.allTokenArray = this.allTokenArray.concat(token_standard_name, this.tokenDict[token_standard_name]);
       /*for ( let token_alias of this.tokenDict[token_standard_name] ) { // > TB13
         this.tokenMap[token_alias] = token_standard_name;
