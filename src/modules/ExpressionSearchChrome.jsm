@@ -62,11 +62,14 @@ var {
   QuickFilterState,
 } = ChromeUtils.import("resource:///modules/QuickFilterManager.jsm");
 var { ExpressionSearchLog } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchLog.jsm"); // load log first
-var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
+var { 
+  ExpressionSearchComputeExpression,
+   ExpressionSearchExprToStringInfix, 
+   ExpressionSearchTokens
+} = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
 var { ExpressionSearchaop } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchAOP.jsm");
 var { ExpressionSearchCommon } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchCommon.jsm");
 
-let opstrings = Services.strings.createBundle('chrome://expressionsearch/locale/ExpressionSearch.properties');
 var ExpressionSearchChrome = {
   // if last key is Enter
   isEnter: 0,
@@ -76,7 +79,6 @@ var ExpressionSearchChrome = {
   needMoveId: "quick-filter-bar-main-bar",
   originalFilterId: "qfb-qs-textbox",
   textBoxDomId: "expression-search-textbox",
-  strBundle: opstrings,//Services.strings.createBundle('chrome://expressionsearch/locale/ExpressionSearch.properties'),
 
   prefs: null, // preference object
   options: {}, // preference strings
@@ -284,7 +286,8 @@ var ExpressionSearchChrome = {
       case "c2s_regexpReplace":
       case "installed_version":
       case "virtual_folder_path":
-        this.prefs.getStringPref(data)
+        this.prefs.getStringPref(data);
+        break;
       default:
         ExpressionSearchLog.log("Unknown perf key:" + data, "Error", 1);
         break;
@@ -666,7 +669,7 @@ var ExpressionSearchChrome = {
     aNode.id = this.textBoxDomId;
     aNode.setAttribute("class", "searchBox");
     aNode.setAttribute("type", "search");
-    aNode.setAttribute("emptytextbase", this.strBundle.GetStringFromName("textbox.emptyText.base"));
+    aNode.setAttribute("emptytextbase", extension.localeData.localizeMessage("textbox.emptyText.base"));
     aNode.setAttribute("timeout", 1000);
     aNode.setAttribute("maxlength", 2048);
     aNode.setAttribute("width", 320);
@@ -1021,12 +1024,12 @@ var ExpressionSearchChrome = {
     let keyset = doc.createElementNS(XULNS, "keyset");
     keyset.id = 'expression-search-keyset';
     let key1 = doc.createElementNS(XULNS, "key");
-    key1.setAttribute("key", this.strBundle.GetStringFromName("focusSearch.key"));
-    key1.setAttribute("modifiers", this.strBundle.GetStringFromName("focusSearch.mod"));
+    key1.setAttribute("key", extension.localeData.localizeMessage("focusSearch.key"));
+    key1.setAttribute("modifiers", extension.localeData.localizeMessage("focusSearch.mod"));
     key1.setAttribute('oncommand', "ExpressionSearchChrome.setFocus(window)");
     let key2 = doc.createElementNS(XULNS, "key");
-    key2.setAttribute("keycode", this.strBundle.GetStringFromName("back2folder.keycode"));
-    key2.setAttribute("modifiers", this.strBundle.GetStringFromName("back2folder.mod"));
+    key2.setAttribute("keycode", extension.localeData.localizeMessage("back2folder.keycode"));
+    key2.setAttribute("modifiers", extension.localeData.localizeMessage("back2folder.mod"));
     key2.setAttribute('oncommand', "ExpressionSearchChrome.back2OriginalFolder(window)");
     keyset.insertBefore(key1, null);
     keyset.insertBefore(key2, null);
@@ -1047,7 +1050,7 @@ var ExpressionSearchChrome = {
       description.id = tooltipId + "-line" + i;
       description.setAttribute('class', 'tooltip-' + classes[i - 1]);
       if (i == 1 || i == 2) {
-        description.textContent = this.strBundle.GetStringFromName("info.helpLine" + i);
+        description.textContent = extension.localeData.localizeMessage("info.helpLine" + i);
       } else {
         description.textContent = ' ';
       }
@@ -1215,15 +1218,11 @@ var ExpressionSearchChrome = {
       ["about:crashes", "", function () { ExpressionSearchCommon.openTab('about:crashes'); }],
       ["about:memory", "", function () { ExpressionSearchCommon.openTab('about:memory?verbose'); }],
       [''], // items before seprator and the seprator it self will only shown if verbose
-      [this.strBundle.GetStringFromName("dialog.settings"), "chrome://messenger/skin/accountcentral/account-settings.png", function () { ExpressionSearchCommon.openWindow('resource://expressionsearch/modules/esPrefDialog.xhtml'); }],
-      [this.strBundle.GetStringFromName("option.help"), "chrome://global/skin/icons/question-64.png", function () { ExpressionSearchCommon.showHelpFile('expressionsearch.helpfile'); }],
-      [this.strBundle.GetStringFromName("donate.label"), this.strBundle.GetStringFromName("donate.image"), function () { ExpressionSearchCommon.openDonateLinkExternaly(ExpressionSearchChrome.strBundle.GetStringFromName("donate.pay")); }],
-      //     ["Addon @ Mozilla", "chrome://mozapps/skin/extensions/extensionGeneric.png", function(){ ExpressionSearchCommon.openLinkExternally("https://addons.thunderbird.net/en-US/thunderbird/addon/gmailui"); }],
-      //     ["Addon @ GitHub", "chrome://awsomeAutoArchive/content/github.png", function(){ ExpressionSearchCommon.openLinkExternally("https://github.com/opto/expression-search-NG"); }],
-      //     ["Addon @ GitHub", "chrome://mozapps/skin/extensions/extensionGeneric.png", function(){ ExpressionSearchCommon.openLinkExternally("https://github.com/opto/expression-search-NG"); }],
+      [extension.localeData.localizeMessage("dialog.settings"), "chrome://messenger/skin/accountcentral/account-settings.png", function () { ExpressionSearchCommon.openWindow('/html/esPrefDialog.html'); }],
+      [extension.localeData.localizeMessage("option.help"), "chrome://global/skin/icons/question-64.png", function () { ExpressionSearchCommon.showHelpFile('expressionsearch.helpfile'); }],
+      [extension.localeData.localizeMessage("donate.label"), extension.localeData.localizeMessage("donate.image"), function () { ExpressionSearchCommon.openLinkExternally("https://www.paypal.com/donate?hosted_button_id=EMVA9S5N54UEW"); }],
       ["Report Bug", "chrome://global/skin/icons/information-32.png", function () { ExpressionSearchCommon.openLinkExternally("https://github.com/opto/expression-search-NG/issues"); }],
-      [this.strBundle.GetStringFromName("about.about"), "resource://expressionsearch/skin/statusbar_icon.png", function () { ExpressionSearchCommon.openWindow('resource://expressionsearch/modules/about.xhtml'); }],
-      //      [this.strBundle.GetStringFromName("about.about"), "resource://expressionsearch/skin/statusbar_icon.png", function(){ ExpressionSearchCommon.openWindow('chrome://messenger/content/SearchDialog.xhtml'); }],
+      [extension.localeData.localizeMessage("about.about"), "resource://expressionsearch/skin/statusbar_icon.png", function () { ExpressionSearchCommon.openWindow("/html/about.html", "", { type: "popup", width: 470, height: 310 }); }],
     ].forEach(function (menu) {
       ExpressionSearchChrome.addMenuItem(menu, doc, menupopup);
     });
@@ -1241,33 +1240,40 @@ var ExpressionSearchChrome = {
       return;
     }
 
-    let hbox = doc.createElementNS(XULNS, "hbox");
-    hbox.setAttribute("align", "center");
     let selectall = doc.createElementNS(XULNS, "button");
-    this.strBundle.GetStringFromName("textbox.emptyText.base");
-    selectall.setAttribute("label", this.strBundle.GetStringFromName("virtualfolder.selectall"));
+    selectall.setAttribute("label", extension.localeData.localizeMessage("virtualfolder.selectall"));
     selectall.setAttribute('oncommand', "ExpressionSearchChrome.changeAllFolder(window, true);");
+    
     let clearall = doc.createElementNS(XULNS, "button");
-    clearall.setAttribute("label", this.strBundle.GetStringFromName("virtualfolder.clearall"));
+    clearall.setAttribute("label", extension.localeData.localizeMessage("virtualfolder.clearall"));
     clearall.setAttribute('oncommand', "ExpressionSearchChrome.changeAllFolder(window, false);");
+    
     let mode = doc.createElementNS(XULNS, "label");
-    mode.setAttribute("value", this.strBundle.GetStringFromName('virtualfolder.modelabel'));
+    mode.setAttribute("value", extension.localeData.localizeMessage('virtualfolder.modelabel'));
+    
     let menulist = doc.createElementNS(XULNS, "menulist");
     menulist.id = 'esFolderType';
-    let menupopup = doc.createElementNS(XULNS, "menupopup");
+    
     let modesingle = doc.createElementNS(XULNS, "menuitem");
-    modesingle.setAttribute("label", this.strBundle.GetStringFromName("virtualfolder.modesingle"));
+    modesingle.setAttribute("label", extension.localeData.localizeMessage("virtualfolder.modesingle"));
     modesingle.setAttribute("value", 0);
+    
     let modechild = doc.createElementNS(XULNS, "menuitem");
-    modechild.setAttribute("label", this.strBundle.GetStringFromName("virtualfolder.modechild"));
+    modechild.setAttribute("label", extension.localeData.localizeMessage("virtualfolder.modechild"));
     modechild.setAttribute("value", 1);
+    
     let modedescendants = doc.createElementNS(XULNS, "menuitem");
-    modedescendants.setAttribute("label", this.strBundle.GetStringFromName("virtualfolder.modedescendants"));
+    modedescendants.setAttribute("label", extension.localeData.localizeMessage("virtualfolder.modedescendants"));
     modedescendants.setAttribute("value", 2);
+    
+    let menupopup = doc.createElementNS(XULNS, "menupopup");
     menupopup.insertBefore(modesingle, null);
     menupopup.insertBefore(modechild, null);
     menupopup.insertBefore(modedescendants, null);
     menulist.insertBefore(menupopup, null);
+
+    let hbox = doc.createElementNS(XULNS, "hbox");
+    hbox.setAttribute("align", "center");
     hbox.insertBefore(selectall, null);
     hbox.insertBefore(clearall, null);
     hbox.insertBefore(mode, null);

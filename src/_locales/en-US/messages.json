@@ -309,7 +309,7 @@
         "message": "Subject (Long)"
     },
     "textbox.emptyText.base": {
-        "message": "Expression Search..."
+        "message": "Expression Search... #1"
     },
     "toRegex": {
         "message": "Recipients (To/Cc/Bcc RegEx)"

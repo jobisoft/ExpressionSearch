@@ -309,7 +309,7 @@
         "message": "标题 (长)"
     },
     "textbox.emptyText.base": {
-        "message": "表达式搜索..."
+        "message": "表达式搜索... #1"
     },
     "toRegex": {
         "message": "收信人 (To/Cc/Bcc 正则表达式)"
