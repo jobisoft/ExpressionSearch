@@ -3,21 +3,15 @@
 //  MPL 2.0
 //Changes for TB 78+ (c) by Klaus Buecher/opto 2020-2021
 "use strict";
-//debugger;
 
 var EXPORTED_SYMBOLS = ["ExpressionSearchChrome"];
+var { ExtensionParent } = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
+var extension = ExtensionParent.GlobalManager.getExtension("expressionsearch@opto.one");
 
 //Cu.import("resource://gre/modules/Timer.jsm");
 var { clearTimeout, setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-
-let console = {
-
-  log: function (...a) {
-    //console.log(a);
-  }
-}
 
 var ExpressionSearchFilter = {};
 
@@ -48,19 +42,10 @@ var { VirtualFolderHelper } = ChromeUtils.import(
   "resource:///modules/VirtualFolderWrapper.jsm"
 );
 
-
-// Cu.import("resource:///modules/iteratorUtils.jsm");
-//  Cu.import("resource:///modules/gloda/utils.js"); // for GlodaUtils.parseMailAddresses
-//  var {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/glodautils.jsm");
 var { GlodaUtils } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaUtils.jsm"
 );
-//Cu.import("resource://gre/modules/AddonManager.jsm");
 var { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
-// need to know whether gloda enabled
-//!!!
-//   Cu.import("resource:///modules/gloda/indexer.js");
-
 
 // XXX we need to know whether the gloda indexer is enabled for upsell reasons,
 // but this should really just be exposed on the main Gloda public interface.
@@ -75,37 +60,10 @@ var {
   QuickFilterSearchListener,
   QuickFilterState,
 } = ChromeUtils.import("resource:///modules/QuickFilterManager.jsm");
-
-
-// to call gloda search, actually no need
-//Cu.import("resource:///modules/gloda/msg_search.js");
-//if (!ExpressionSearchFilter  )     
-//   console.log("vor  import ExpressionSearchFilter", ExpressionSearchFilter);
-//  var {ExpressionSearchFilter} = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter1.js");
-//   console.log("end importModulesit", ExpressionSearchFilter);
-
-
-//Cu.import("resource://expressionsearch/modules/gmailuiParse.jsm");
-//  var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
-
-
-console.log("vor import ExpressionSearchLog");
 var { ExpressionSearchLog } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchLog.jsm"); // load log first
-console.log("nach import ExpressionSearchLog", ExpressionSearchLog);
-
-
-console.log("nochmal GMAILUIParse in ");
 var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
-console.log("fertig GMAILUIParse in ");
-
-
-console.log("vor ExpressionSearchaop");
 var { ExpressionSearchaop } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchAOP.jsm");
-console.log("nach ExpressionSearchaop", ExpressionSearchaop);
-console.log("vor ExpressionSearchCommon");
-
 var { ExpressionSearchCommon } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchCommon.jsm");
-console.log("nach ExpressionSearchCommon");
 
 
 const XULNS = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
@@ -118,7 +76,6 @@ const oldAPI_61 = Services.vc.compare(Services.appinfo.platformVersion, '61.0a1'
 const oldAPI_65 = Services.vc.compare(Services.appinfo.platformVersion, '65.0a1') < 0;
 const oldAPI_67 = Services.vc.compare(Services.appinfo.platformVersion, '67.0a1') < 0;
 
-//var EXPORTED_SYMBOLS = ["ExpressionSearchChrome"];
 let opstrings = Services.strings.createBundle('chrome://expressionsearch/locale/ExpressionSearch.properties');
 var ExpressionSearchChrome = {
   // if last key is Enter
@@ -288,8 +245,6 @@ var ExpressionSearchChrome = {
     };
     let uri = Services.io.newURI("resource://expressionsearch/modules/defaults.js");
     try {
-      //! not working      this.mozIJSSubScriptLoader.loadSubScript(uri.spec, prefLoaderScope);  setCharPref
-      //debugger;
       Services.scriptloader.loadSubScript(uri.spec, prefLoaderScope, "UTF-8");
 
     } catch (err) {
@@ -356,7 +311,6 @@ var ExpressionSearchChrome = {
   },
 
   initFunctionHook: function (win) {
-    //    if (!ExpressionSearchaop)  var { ExpressionSearchaop } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchAOP.jsm");
     if (typeof (win.QuickFilterBarMuxer) == 'undefined' || typeof (win.QuickFilterBarMuxer.reflectFiltererState) == 'undefined') return;
 
     win._expression_search.hookedFunctions.push(ExpressionSearchaop.around({ target: win.QuickFilterBarMuxer, method: 'reflectFiltererState' }, function (invocation) {
@@ -434,20 +388,22 @@ var ExpressionSearchChrome = {
   },
 
   unLoad: function (win) {
-    console.log("ExpressionSearchChrome unLoad");
-
+    ExpressionSearchLog.info("ExpressionSearchChrome unLoad");
     if (typeof (win._expression_search) == 'undefined') return;
+    
     ExpressionSearchLog.info("Expression Search: unload...");
     let me = ExpressionSearchChrome;
     if (me.helpTimer > 0) {
       clearTimeout(me.helpTimer);
       me.helpTimer = 0;
     }
+    
     let index = me.three_panes.indexOf(win); // using ===
     if (index >= 0) me.three_panes.splice(index, 1);
     let threadPane = win.document.getElementById("threadTree");
-    if (threadPane && threadPane.RemoveEventListener)
+    if (threadPane && threadPane.RemoveEventListener) {
       threadPane.RemoveEventListener("contextmenu", me.onContextMenu, true);
+    }
     win._expression_search.hookedFunctions.forEach(hooked => hooked.unweave());
     let doc = win.document;
     for (let node of win._expression_search.createdElements) {
@@ -675,7 +631,6 @@ var ExpressionSearchChrome = {
   },
 
   onSearchKeyPress: function (event) {
-    //debugger;
     let self = this;
     // defer the call or this.value is still the old value, not updated with event.char yet
     setTimeout(function () { ExpressionSearchChrome.delayedOnSearchKeyPress.call(self, event); }, 0);
@@ -706,7 +661,7 @@ var ExpressionSearchChrome = {
   },
 
   initSearchInput: function (win) {
-    console.log("initSearchInput");
+    ExpressionSearchLog.info("initSearchInput");
     let doc = win.document;
     let mainBar = doc.getElementById(this.needMoveId);
     let oldTextbox = doc.getElementById(this.originalFilterId);
@@ -731,7 +686,7 @@ var ExpressionSearchChrome = {
     aNode.setAttribute("width", 320);
     aNode.setAttribute("maxwidth", 500);
     aNode.setAttribute("minwidth", 280);
-    console.log("create box, command", aNode, oldTextbox, oldTextbox._commandHandler)
+    ExpressionSearchLog.info("create box, command", aNode, oldTextbox, oldTextbox._commandHandler)
     //  aNode.onCommand = oldTextbox.onCommand;
     //is the following needed??
     //?    aNode.setAttribute("keyLabelNonMac", "<Strg-Umschalt-L>");
@@ -1104,7 +1059,7 @@ var ExpressionSearchChrome = {
 
   createTooltip: function (win, status_bar) {
     let doc = win.document;
-    console.log("tooltipdoc", doc);
+    ExpressionSearchLog.info("tooltipdoc", doc);
     let tooltip = doc.createElementNS(XULNS, "tooltip");
     tooltip.id = tooltipId;
     tooltip.setAttribute('orient', 'vertical');
@@ -1114,7 +1069,6 @@ var ExpressionSearchChrome = {
       let description = doc.createElementNS(XULNS, "description");
       description.id = tooltipId + "-line" + i;
       description.setAttribute('class', 'tooltip-' + classes[i - 1]);
-      ////debugger;
       if (i == 1 || i == 2) {
         description.textContent = this.strBundle.GetStringFromName("info.helpLine" + i);
       } else {
@@ -1143,7 +1097,6 @@ var ExpressionSearchChrome = {
   },
 
   initStatusBar: function (win) {
-    debugger;
     let doc = win.document;
     let status_bar = doc.getElementById('status-bar');
     if (status_bar) { // add status bar icon
@@ -1171,19 +1124,19 @@ var ExpressionSearchChrome = {
   },
 
   loadInto3pane: function (win) {
-    console.log("loadInto3pane");
+    ExpressionSearchLog.info("loadInto3pane");
+    
     let me = ExpressionSearchChrome;
     try {
       me.initFunctionHook(win);
       me.initStatusBar.apply(me, [win]);
+
+      
       me.initSearchInput.apply(me, [win]);
-      console.log("after initSearchInput");
       me.refreshFilterBar(win);
-      console.log("after refreshFilterBar");
       me.registerCallback(win);
-      console.log("after registerCallback");
+
       let threadPane = win.document.getElementById("threadTree");
-      console.log("threadPane", threadPane);
       if (threadPane) {
         // On Mac, contextmenu is fired before onclick, thus even break onclick  still has context menu
         threadPane.addEventListener("contextmenu", me.onContextMenu, true);
@@ -1214,9 +1167,8 @@ var ExpressionSearchChrome = {
   },
 
   Load: function (win) {
-    console.log("start Load");
+    ExpressionSearchLog.info("start Load");
     let me = ExpressionSearchChrome;
-    //window.removeEventListener("load", me.Load, false);
     if (typeof (win._expression_search) != 'undefined') return ExpressionSearchLog.log("expression search already loaded, return");
     win._expression_search = { createdElements: [], hookedFunctions: [], savedPosition: 0, timer: Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer), originalURI: undefined };
     win.ExpressionSearchChrome = ExpressionSearchChrome; // export ExpressionSearchChrome to windows name space
