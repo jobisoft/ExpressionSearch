@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!--link rel="stylesheet" href="chrome://global/skin/">
+  <link rel="stylesheet" href="/content/skin/overlay.css">
+  <link rel="stylesheet" href="/content/skin/dialogs.css">
+  <link rel="stylesheet" href="/content/skin/folderMenus.css">
+  <link rel="stylesheet" href="/content/skin/menulist.css">
+  <link rel="stylesheet" href="/content/skin/preferences/preferences.css"-->
+  <link rel="stylesheet" href="esPrefDialog.css">
+  <title>__MSG_dialog.title__</title>
+</head>
+
+<body>
+  <div class="vbox" id="expressionsearch-pane" label="__MSG_dialog.settings__">
+    <div class="vbox" flex="1">
+      <fieldset id="expressionsearch-pane-setting">
+        <legend>__MSG_dialog.settings__</legend>
+        <div class="vbox">
+          <div class="hbox">
+            <input type="checkbox" 
+             id="hide_normal_filer" data-preference="extensions.expressionsearch.hide_normal_filer"><label for="hide_normal_filer">__MSG_option.hidenormal__</label>
+          </div>
+          <div class="hbox">
+            <input type="checkbox" 
+              id="act_as_normal_filter" data-preference="extensions.expressionsearch.act_as_normal_filter"><label for="act_as_normal_filter">__MSG_option.act_as_normal_filter__</label>
+          </div>
+          <div class="hbox">
+            <input type="checkbox" id="select_msg_on_enter" data-preference="extensions.expressionsearch.select_msg_on_enter"><label for="select_msg_on_enter">__MSG_option.select_on_enter__</label>
+          </div>
+          <div class="hbox">
+            <input type="checkbox" data-preference="extensions.expressionsearch.reuse_existing_folder" id="reuse_existing_folder">
+            <label for="reuse_existing_folder">__MSG_option.reusefolder__</label>
+            <label id="reuse_existing_folder-textlink" class='textlink'>?</label>
+          </div>
+          <div class="hbox">
+            <input type="checkbox"
+              id="enable_verbose_info" data-preference="extensions.expressionsearch.enable_verbose_info"><label for="enable_verbose_info">__MSG_option.enable_verbose_info__</label>
+          </div>
+
+          <div class="hbox">
+            <input type="checkbox" data-preference="extensions.expressionsearch.enable_statusbar_info">
+            <label>__MSG_option.enable_statusbar_info1__</label>
+            <input class='expressionsearch_pref_input' type="number" min="0" data-preference="extensions.expressionsearch.statusbar_info_showtime"
+              hidespinbuttons="true" size='2'>
+            <label>__MSG_option.enable_statusbar_info2__</label>
+            <input class='expressionsearch_pref_input' type="number" min="0" data-preference="extensions.expressionsearch.statusbar_info_hidetime"
+              hidespinbuttons="true" size='2'>
+            <label>__MSG_option.enable_statusbar_info3__</label>
+          </div>
+
+          <div class="hbox">
+            <input type="checkbox" data-preference="extensions.expressionsearch.load_virtual_folder_in_tab">
+            <label>__MSG_option.load_virtual_folder_in_tab__</label>
+          </div>
+
+          <div class="hbox" id="1" data-tooltip="esSearchTimeout">
+            <label>__MSG_option.search_timeout__</label>
+            <input class='expressionsearch_pref_input' type="number" min="0" data-preference="extensions.expressionsearch.search_timeout"
+              hidespinbuttons="true" size='4'>
+            <label>__MSG_option.ms__</label>
+            <div class="tooltip" id="esSearchTimeout">
+              <div class="vbox">
+                <label>__MSG_option.search_timeout.tooltip_1__</label>
+                <label>__MSG_option.search_timeout.tooltip_2__</label>
+                <label>__MSG_option.search_timeout.tooltip_3__</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vbox">
+          <div class="hbox">
+            <label flex="2">__MSG_option.when_press_ctrl_plus_enter__</label>
+            <!--menulist id="esNewFolderPicker" flex="3" class="menuli"
+              preference='extensions.expressionsearch.virtual_folder_path' oncommand="onFolderPick(event);">
+              <menupopup id="esNewFolderPopup" type="folder" is="folder-menupopup" mode="newFolder"
+                showFileHereLabel="true" fileHereLabel="here">
+                <menuitem label='__MSG_option.use_root_folder__'>
+                </labelclass='folderMenuItem' SpecialFolder="Virtual">
+                <menuseparator>
+              </menupopup>
+            </menulist-->
+          </div>
+          <div class="hbox">
+            <label>__MSG_option.showbuttonlabel__</label>
+            <select class="menuli" data-preference='extensions.expressionsearch.showbuttonlabel'>
+              <option value="0">__MSG_option.showbuttonlabel.auto__</option>
+              <option value="1">__MSG_option.showbuttonlabel.show__</option>
+              <option value="2">__MSG_option.showbuttonlabel.hide__</option>
+              <option value="3">__MSG_option.showbuttonlabel.hideall__</option>
+            </select>
+          </div>
+          <div class="hbox" id="2" data-tooltip="esResultsLabelTooltip">
+            <label>__MSG_option.results_label_size__</label>
+            <select class="menuli" data-preference='extensions.expressionsearch.results_label_size'>
+              <option value="0">__MSG_option.results_label_size.auto__</option>
+              <option value="1">__MSG_option.results_label_size.show__</option>
+              <option value="2">__MSG_option.results_label_size.hide__</option>
+            </select>
+            <div class="tooltip" id="esResultsLabelTooltip">
+              <div class="vbox">
+                <label style="margin-left: 120px">__MSG_option.results_label_size.tip__</label>
+                <image src="/skin/results_label_size.jpg">
+                </image>
+              </div>
+            </div>
+          </div>
+          <div class="hbox" data-tooltip="esCustomDBHeadersTooltip">
+            <label>__MSG_dialog.searchmoreheaders__</label>
+            <textarea data-split-char=":" data-preference="mailnews.customHeaders"></textarea>
+            <div class="tooltip" id="esCustomDBHeadersTooltip">
+              <label>__MSG_dialog.searchmoreheaderstooltip__</label>
+            </div>
+          </div>
+        </div>
+
+      </fieldset>
+
+      <fieldset id="expressionsearch-pane-move2bar">
+        <legend>__MSG_dialog.move2bar__</legend>
+        <div class="vbox">
+          <div class="hbox">
+            <input type="radio" name="move2bar" data-preference="extensions.expressionsearch.move2bar" id="expressionsearch_move2nowhere"
+              value="0"><label>__MSG_dialog.move2quicksearchbar__</label>
+          </div>
+          <div class="hbox">
+            <input type="radio" name="move2bar" data-preference="extensions.expressionsearch.move2bar" id="expressionsearch_move2toolbar"
+              value="1"><label>__MSG_dialog.move2toolbar__</label>
+          </div>
+          <div class="hbox">
+            <input type="radio" name="move2bar" data-preference="extensions.expressionsearch.move2bar" id="expressionsearch_move2menubar"
+              value="2"><label>__MSG_dialog.move2menubar__</label>
+          </div>
+          <div class="hbox">
+            <input type="radio" name="move2bar" data-preference="extensions.expressionsearch.move2bar" id="expressionsearch_move2menubar"
+              value="3"><label>__MSG_dialog.move2tabbar__</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset id="expressionsearch-pane-c2ssetting">
+        <legend>__MSG_dialog.c2s_settings__</legend>
+        <div class="vbox">
+          <div class="hbox">
+            <input type="checkbox" id="c2s_enableCtrl" data-preference="extensions.expressionsearch.c2s_enableCtrl"><label for="c2s_enableCtrl">__MSG_option.c2s_enableCtrl__</label>
+          </div>
+          <div class="hbox">
+            <input type="checkbox" id="c2s_enableShift" data-preference="extensions.expressionsearch.c2s_enableShift"><label for="c2s_enableShift">__MSG_option.c2s_enableShift__</label>
+          </div>
+          <div class="hbox">
+            <input type="checkbox"
+              id="c2s_enableCtrlReplace" data-preference="extensions.expressionsearch.c2s_enableCtrlReplace"><label for="c2s_enableCtrlReplace">__MSG_option.c2s_enableCtrlReplace__</label>
+          </div>
+          <div class="hbox">
+            <input type="checkbox"
+              id="c2s_enableShiftReplace" data-preference="extensions.expressionsearch.c2s_enableShiftReplace"><label for="c2s_enableShiftReplace">__MSG_option.c2s_enableShiftReplace__</label>
+          </div>
+          <div class="hbox">
+            <input type="checkbox"
+              id="c2s_removeDomainName" data-preference="extensions.expressionsearch.c2s_removeDomainName"><label for="c2s_removeDomainName">__MSG_option.c2s_removeDomainName__</label>
+          </div>
+        </div>
+        <div class="vbox">
+          <div class="hbox">
+            <label>__MSG_dialog.c2s_replace_title__</label>
+            <label id="c2s_replace_title_textlink" class='textlink'>?</label>
+            <span>:&nbsp;</span>
+            <label>__MSG_dialog.c2s_match__</label>
+            <input data-preference="extensions.expressionsearch.c2s_regexpMatch" id="c2sMatch">
+            <label>__MSG_dialog.c2s_replace__</label>
+            <input data-preference="extensions.expressionsearch.c2s_regexpReplace" id="c2sReplace">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset id="expressionsearch-pane-help">
+        <legend>__MSG_dialog.help__</legend>
+        <div class="vbox">
+          <div class="hbox">
+            <image id="expressionsearch-pane-help-paypal-link" style="cursor:pointer;"
+              src="/skin/donate-with-paypal.png">
+          </div>
+          <div class="vbox">
+            <label id="expressionsearch-pane-help-file-textlink" class='textlink'>__MSG_option.help__</label>
+            <label id="expressionsearch-pane-help-github-textlink" class='textlink'>__MSG_option.issues__</label>
+            <label id="expressionsearch-pane-help-crash-textlink" class='textlink'>__MSG_option.crash__</label>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+
+  <div class="hbox" style="justify-content: end">
+    <button id="save">__MSG_dialog.save__
+  </div>
+
+  <script src="/html/listener.js"></script>
+  <script src="/html/esPrefDialog.js"></script>
+</body>
+
+</html>

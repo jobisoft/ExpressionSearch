@@ -1,0 +1,77 @@
+{
+  "applications": {
+    "gecko": {
+      "id": "expressionsearch@opto.one",
+      "strict_min_version": "91.0",
+      "strict_max_version": "102.*"
+    }
+  },
+  "version": "3.2.1",
+  "manifest_version": 2,
+  "name": "Expression Search - NG",
+  "description": "Type 'from:fred to:tom' or 'f:fred t:tom' to see all messages from Fred to Tom in the current view.",
+  "author": "Klaus Buecher, Opera Wang, Ken Mixter",
+   "default_locale": "en-US",
+  "homepage_url": "https://github.com/opto/expression-search-NG",
+  "icons": {
+    "32": "icon.png",
+    "48": "icon.png",
+    "64": "icon.png"
+  },
+  "background": {
+    "scripts": [
+      "ex-background.js"
+    ]
+  },
+  "options_ui": {
+    "page": "html/esPrefDialog.html",
+    "open_in_tab": true
+  },
+  "experiment_apis": {
+    "BootstrapLoader": {
+      "schema": "api/BootstrapLoader/schema.json",
+      "parent": {
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "BootstrapLoader"
+          ]
+        ],
+        "script": "api/BootstrapLoader/implementation.js"
+      }
+    },
+    "LegacyPrefs": {
+      "schema": "api/LegacyPrefs/schema.json",
+      "parent": {
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "LegacyPrefs"
+          ]
+        ],
+        "script": "api/LegacyPrefs/implementation.js"
+      }
+    },
+    "NotifyTools": {
+      "schema": "api/NotifyTools/schema.json",
+      "parent": {
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "NotifyTools"
+          ]
+        ],
+        "script": "api/NotifyTools/implementation.js",
+        "events": [
+          "startup"
+        ]
+      }
+    }
+  }
+}
