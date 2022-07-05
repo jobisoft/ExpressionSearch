@@ -8,7 +8,13 @@ var EXPORTED_SYMBOLS = ["ExpressionSearchChrome"];
 var { ExtensionParent } = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
 var extension = ExtensionParent.GlobalManager.getExtension("expressionsearch@opto.one");
 
-//Cu.import("resource://gre/modules/Timer.jsm");
+const XULNS = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
+const statusbarIconID = "expression-search-status-bar";
+const statusbarIconSrc = 'resource://expressionsearch/skin/statusbar_icon.png';
+const popupsetID = "expressionSearch-statusbar-popup";
+const contextMenuID = "expression-search-context-menu";
+const tooltipId = "expression-search-tooltip";
+
 var { clearTimeout, setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -25,11 +31,6 @@ In case 2, resource:/// and resource://gre/ point to the same place, so it's tec
 and it's easy to carelessly use the wrong one. We had a bunch of these issues (especially with add-ons) when we switched layouts.
  
 But the code that's using resource://gre/ URLs for app content, or vice versa, is still technically wrong. */
-
-
-//.import("resource://expressionsearch/modules/ExpressionSearchAOP.jsm");
-//  //Cu.import("resource://expressionsearch/modules/ExpressionSearchCommon.jsm");
-//   var {ExpressionSearchCommon} = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchCommon.jsm");
 
 // for hook functions for attachment search
 var { SearchSpec } = ChromeUtils.import("resource:///modules/SearchSpec.jsm");
@@ -64,14 +65,6 @@ var { ExpressionSearchLog } = ChromeUtils.import("resource://expressionsearch/mo
 var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
 var { ExpressionSearchaop } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchAOP.jsm");
 var { ExpressionSearchCommon } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchCommon.jsm");
-
-
-const XULNS = 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
-const statusbarIconID = "expression-search-status-bar";
-const statusbarIconSrc = 'resource://expressionsearch/skin/statusbar_icon.png';
-const popupsetID = "expressionSearch-statusbar-popup";
-const contextMenuID = "expression-search-context-menu";
-const tooltipId = "expression-search-tooltip";
 
 let opstrings = Services.strings.createBundle('chrome://expressionsearch/locale/ExpressionSearch.properties');
 var ExpressionSearchChrome = {
