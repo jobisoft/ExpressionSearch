@@ -5,11 +5,17 @@
 //Changes for TB 78+ (c) by Klaus Buecher/opto 2020-2021
 "use strict";
 
+var { 
+  nsMsgSearchAttrib: nsMsgSearchAttrib, 
+  nsMsgSearchOp: nsMsgSearchOp, 
+  nsMsgMessageFlags: nsMsgMessageFlags,
+  nsMsgSearchScope: nsMsgSearchScope 
+} = Ci;
+
 var EXPORTED_SYMBOLS = ["ExpressionSearchFilter"];
 var { ExtensionParent } = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
 var extension = ExtensionParent.GlobalManager.getExtension("expressionsearch@opto.one");
 
-const { nsMsgSearchAttrib: nsMsgSearchAttrib, nsMsgSearchOp: nsMsgSearchOp, nsMsgMessageFlags: nsMsgMessageFlags, nsMsgSearchScope: nsMsgSearchScope } = Ci;
 var { ExpressionSearchChrome } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchChrome.jsm");
 var { ExpressionSearchLog } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchLog.jsm");
 var {
@@ -48,6 +54,8 @@ let platformIsMac = (AppConstants.platform == "macosx" ? true : false);
 let haveBodyMapping = {}; // folderURI+messageKey => true (haveBody)
 let badREs = {};
 
+var termsAdded = false;
+
 function _getRegEx(aSearchValue) {
   /*
    * If there are no flags added, you can add a regex expression without
@@ -73,7 +81,11 @@ function _getRegEx(aSearchValue) {
   return regexp;
 }
 
-(function ExperssionSearchCustomerTerms() {
+(function AddExpressionSearchCustomerTerms() {
+  if (termsAdded) {
+    return;
+  }
+  termsAdded = true;
 
   function customerTermBase(nameId, Operators) {
     let self = this; // In constructors, this is always your instance. Just for safe.
@@ -341,18 +353,17 @@ function _getRegEx(aSearchValue) {
     return emitterInstance.found ^ (aSearchOp == nsMsgSearchOp.DoesntMatch);
   });
 
-  let filterService = MailServices.filters;
-  filterService.addCustomTerm(bccSearch);
-  filterService.addCustomTerm(toSomebodyOnly);
-  filterService.addCustomTerm(subjectRegex);
-  filterService.addCustomTerm(subjectSimple);
-  filterService.addCustomTerm(headerRegex);
-  filterService.addCustomTerm(fromRegex);
-  filterService.addCustomTerm(toRegex);
-  filterService.addCustomTerm(dayTime);
-  filterService.addCustomTerm(dateMatch);
-  filterService.addCustomTerm(attachmentNameOrType);
-  filterService.addCustomTerm(bodyRegex);
+  MailServices.filters.addCustomTerm(bccSearch);
+  MailServices.filters.addCustomTerm(toSomebodyOnly);
+  MailServices.filters.addCustomTerm(subjectRegex);
+  MailServices.filters.addCustomTerm(subjectSimple);
+  MailServices.filters.addCustomTerm(headerRegex);
+  MailServices.filters.addCustomTerm(fromRegex);
+  MailServices.filters.addCustomTerm(toRegex);
+  MailServices.filters.addCustomTerm(dayTime);
+  MailServices.filters.addCustomTerm(dateMatch);
+  MailServices.filters.addCustomTerm(attachmentNameOrType);
+  MailServices.filters.addCustomTerm(bodyRegex);
 })();
 
 let ExpressionSearchFilter = {
@@ -363,6 +374,8 @@ let ExpressionSearchFilter = {
   latchQSFolderReq: 0,
 
   appendTerms: function (aTermCreator, aTerms, aFilterValue) {
+    console.log("appendTerms");
+
     try {
       // we're in javascript modules, no window object, so first find the top window
       let topWin = {};
@@ -411,7 +424,7 @@ let ExpressionSearchFilter = {
         ExpressionSearchFilter.latchQSFolderReq.createQuickFolder.apply(ExpressionSearchFilter.latchQSFolderReq, [topWin, terms]);
         ExpressionSearchFilter.latchQSFolderReq = 0;
       } else {
-        ExpressionSearchLog.info("Experssion Search Statements: " + ExpressionSearchExprToStringInfix(e));
+        ExpressionSearchLog.info("Expression Search Statements: " + ExpressionSearchExprToStringInfix(e));
         ExpressionSearchFilter.createSearchTermsFromExpression(e, aTermCreator, aTerms);
         haveBodyMapping = {};
         badREs = {};
@@ -423,6 +436,8 @@ let ExpressionSearchFilter = {
   },
 
   domBindExtra: function (aDocument, aMuxer, aNode) {
+    console.log("domBindExtra");
+
     // -- platform-dependent emptytext setup
     let filterNode = aDocument.getElementById('qfb-qs-textbox');
     let quickKey = '';
@@ -440,12 +455,16 @@ let ExpressionSearchFilter = {
   },
 
   getDefaults: function () { // this function get called pretty early
+    console.log("getDefaults");
+
     return {
       text: null,
     };
   },
 
   propagateState: function (aOld, aSticky) {
+    console.log("propagateState");
+
     return {
       // must clear state when create quick search folder, or recursive call happenes when aSticky.
       text: (aSticky && !ExpressionSearchFilter.latchQSFolderReq && typeof (aOld) != 'undefined') ? aOld.text : null,
@@ -454,6 +473,8 @@ let ExpressionSearchFilter = {
   },
 
   onCommand: function (aState, aNode, aEvent, aDocument) { // may get skipped when init, but appendTerms get called
+    console.log("onCommand");
+
     let text = aNode.value.length ? aNode.value : null;
     aState = aState || {}; // or will be no search.
     let needSearch = false;
@@ -476,9 +497,15 @@ let ExpressionSearchFilter = {
 
   // change DOM status, eg disabled, checked, etc.
   // by AMuxer.onActiveAllMessagesLoaded or reflectFiltererState
-  reflectInDOM: function (aNode, aFilterValue, // aFilterValue is the 1st value PFT returns
-    aDocument, aMuxer,
-    aFromPFP) { //PFP: PostFilterProcess, the second value PFP returns
+  reflectInDOM: function (
+    aNode, 
+    aFilterValue, // aFilterValue is the 1st value PFT returns
+    aDocument, 
+    aMuxer,
+    aFromPFP
+  ) {
+    console.log("reflectInDOM");
+    //PFP: PostFilterProcess, the second value PFP returns
     // Update the text if it has changed (linux does weird things with empty
     //  text if we're transitioning emptytext to emptytext)
     let desiredValue = "";
@@ -486,9 +513,6 @@ let ExpressionSearchFilter = {
       desiredValue = aFilterValue.text;
     if (aNode.value != desiredValue && !aFromPFP)
       aNode.value = desiredValue;
-    //      console.log("ExpressionSearchChrome",ExpressionSearchChrome);
-    //!!
-    //!!var  {ExpressionSearchChrome} =  ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchChrome.jsm");
 
     ExpressionSearchChrome.showHideHelp(aDocument.defaultView, false);
 
@@ -521,6 +545,8 @@ let ExpressionSearchFilter = {
   },
 
   postFilterProcess: function (aState, aViewWrapper, aFiltering) {
+    console.log("postFilterProcess");
+
     // If we're not filtering, not filtering on text, there are results, or
     //  gloda is not enabled so upselling makes no sense, then bail.
     // (Currently we always return "nosale" to make sure our panel is closed;
@@ -535,6 +561,8 @@ let ExpressionSearchFilter = {
   },
 
   addSearchTerm: function (aTermCreator, searchTerms, str, attr, op, is_or, grouping) {
+    console.log("addSearchTerm");
+
     let aCustomId;
     if (typeof (attr) == 'object' && attr.type == nsMsgSearchAttrib.Custom) {
       aCustomId = attr.customId;
@@ -585,6 +613,8 @@ let ExpressionSearchFilter = {
   },
 
   get_key_from_tag: function (myTag) {
+    console.log("get_key_from_tag");
+
     if (myTag == 'na') return myTag;
     let tagArray = MailServices.tags.getAllTags({});
     // consider two tags, one is "ABC", the other is "ABCD", when searching for "AB", perfect is return both.
@@ -611,6 +641,8 @@ let ExpressionSearchFilter = {
   },
 
   expression2gloda: function (searchValue) {
+    console.log("expression2gloda");
+
     searchValue = searchValue.replace(/^g:\s*/i, '');
     let regExp = new RegExp("(?:^|\\b)(?:" + ExpressionSearchTokens.allTokens + "):", "g");
     searchValue = searchValue.replace(regExp, '');
@@ -619,6 +651,8 @@ let ExpressionSearchFilter = {
   },
 
   getSearchTermString: function (searchTerms) {
+    console.log("getSearchTermString");
+
     let condition = "";
     searchTerms.forEach(function (searchTerm, index, array) {
       if (index > 0) condition += " ";
@@ -639,6 +673,8 @@ let ExpressionSearchFilter = {
   },
 
   convertExpression: function (e, aTermCreator, searchTerms, was_or) {
+    console.log("convertExpression");
+
     var is_not = false;
     if (e.kind == 'op' && e.tok == '-') {
       if (e.left.kind != 'spec') {
@@ -827,6 +863,8 @@ let ExpressionSearchFilter = {
       this.convertExpression(e.right, aTermCreator, searchTerms, e.kind == 'op' && e.tok == 'or');
   },
   createSearchTermsFromExpression: function (e, aTermCreator, searchTerms) {
+    console.log("createSearchTermsFromExpression");
+
     // start converting the search expression.  Every search term
     // has an and or or field in it.  My current understanding is
     // that it's what this term should be preceded by.  Of course it
@@ -867,14 +905,5 @@ let ExpressionSearchFilter = {
     return null;
   },
 
-  initTest: function () {
-    QuickFilterManager.defineFilter(ExpressionSearchFilter);
-    QuickFilterManager.textBoxDomId = ExpressionSearchFilter.domId;
-
-  }
-
 } // end of ExpressionSearchFilter define
-//console.log("before QuickFilterManager.defineFilter");
-//QuickFilterManager.defineFilter(ExpressionSearchFilter);
-//QuickFilterManager.textBoxDomId = ExpressionSearchFilter.domId;
 
