@@ -18,9 +18,9 @@
 //Changes for TB 78+ (c) by Klaus Buecher/opto
 "use strict";
 
-var EXPORTED_SYMBOLS = ["ExpressionSearchaop"];
+var EXPORTED_SYMBOLS = ["ExpressionSearchAOP"];
 
-var ExpressionSearchaop;
+var ExpressionSearchAOP;
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -166,7 +166,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 	};
 
-	ExpressionSearchaop = 
+	ExpressionSearchAOP = 
 	{
 		/**
 		 * Creates an advice after the defined point-cut. The advice will be executed after the point-cut method 

@@ -65,7 +65,7 @@ var {
    ExpressionSearchExprToStringInfix, 
    ExpressionSearchTokens
 } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
-var { ExpressionSearchaop } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchAOP.jsm");
+var { ExpressionSearchAOP } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchAOP.jsm");
 var { ExpressionSearchCommon } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchCommon.jsm");
 var ExpressionSearchFilter = {};
 
@@ -130,7 +130,7 @@ var ExpressionSearchChrome = {
   },
 
   cleanupPrefs: function () {
-    console.log("ExpressionSearchChrome cleanup");
+    ExpressionSearchLog.info("ExpressionSearchChrome cleanup");
     this.prefs.removeObserver("", ExpressionSearchChrome);
     delete this.prefs;
     this.hookedGlobalFunctions.forEach(hooked => hooked.unweave());
@@ -185,26 +185,38 @@ var ExpressionSearchChrome = {
   initFunctionHook: function (win) {
     if (typeof (win.QuickFilterBarMuxer) == 'undefined' || typeof (win.QuickFilterBarMuxer.reflectFiltererState) == 'undefined') return;
 
-    win._expression_search.hookedFunctions.push(ExpressionSearchaop.around({ target: win.QuickFilterBarMuxer, method: 'reflectFiltererState' }, function (invocation) {
+    win._expression_search.hookedFunctions.push(ExpressionSearchAOP.around(
+      {
+        target: win.QuickFilterBarMuxer, 
+        method: 'reflectFiltererState'
+      },
+      function (invocation) {
       let show = (ExpressionSearchChrome.options.move2bar == 0 || !ExpressionSearchChrome.options.hide_normal_filer);
       let hasFilter = typeof (this.maybeActiveFilterer) == 'object';
       let aFilterer = invocation.arguments[0];
       // filter bar not need show, so hide mainbar(in refreshFilterBar) and show quick filter bar
       if (!show && !aFilterer.visible && hasFilter) aFilterer.visible = true;
       return invocation.proceed();
-    })[0]);
+      }
+    )[0]);
 
     // onMakeActive && onTabSwitched: show or hide the buttons & search box
-    win._expression_search.hookedFunctions.push(ExpressionSearchaop.around({ target: win.QuickFilterBarMuxer, method: 'onMakeActive' }, function (invocation) {
+    win._expression_search.hookedFunctions.push(ExpressionSearchAOP.around(
+      {
+         target: win.QuickFilterBarMuxer,
+         method: 'onMakeActive'
+      },
+      function (invocation) {
       let aFolderDisplay = invocation.arguments[0];
       let tab = aFolderDisplay._tabInfo;
       let appropriate = ("quickFilter" in tab._ext) && aFolderDisplay.displayedFolder && !aFolderDisplay.displayedFolder.isServer;
       win.document.getElementById(ExpressionSearchChrome.needMoveId).style.visibility = appropriate ? 'visible' : 'hidden';
       win.document.getElementById("qfb-results-label").style.visibility = appropriate ? 'visible' : 'hidden';
       return invocation.proceed();
-    })[0]);
+      }
+    )[0]);
 
-    win._expression_search.hookedFunctions.push(ExpressionSearchaop.before({ target: win.QuickFilterBarMuxer, method: 'onTabSwitched' }, function () {
+    win._expression_search.hookedFunctions.push(ExpressionSearchAOP.before({ target: win.QuickFilterBarMuxer, method: 'onTabSwitched' }, function () {
       let filterer = this.maybeActiveFilterer;
       // filterer means if the tab can use quick filter
       // filterer.visible means if the quick search bar is visible
@@ -214,7 +226,12 @@ var ExpressionSearchChrome = {
 
     // hook _flattenGroupifyTerms to avoid being flatten
     if (!ExpressionSearchChrome.hookedGlobalFunctions.length) {
-      ExpressionSearchChrome.hookedGlobalFunctions.push(ExpressionSearchaop.around({ target: SearchSpec.prototype, method: '_flattenGroupifyTerms' }, function (invocation) {
+      ExpressionSearchChrome.hookedGlobalFunctions.push(ExpressionSearchAOP.around(
+        { 
+          target: SearchSpec.prototype, 
+          method: '_flattenGroupifyTerms' 
+        }, 
+        function (invocation) {
         let aTerms = invocation.arguments[0];
         let aCloneTerms = invocation.arguments[1];
         let topWin = Services.wm.getMostRecentWindow("mail:3pane");
@@ -240,11 +257,12 @@ var ExpressionSearchChrome = {
           }
         }
         return outTerms;
-      })[0]);
+        }
+      )[0]);
     }
 
     // for results label to show correct colour by copy filterActive attribute from quick-filter-bar to qfb-results-label, and set colour in overlay.css
-    win._expression_search.hookedFunctions.push(ExpressionSearchaop.after({ target: win.QuickFilterBarMuxer, method: 'reflectFiltererResults' }, function (result) {
+    win._expression_search.hookedFunctions.push(ExpressionSearchAOP.after({ target: win.QuickFilterBarMuxer, method: 'reflectFiltererResults' }, function (result) {
       let qfb = win.document.getElementById("quick-filter-bar");
       let resultsLabel = win.document.getElementById("qfb-results-label");
       if (qfb && resultsLabel) {
@@ -1160,7 +1178,7 @@ var ExpressionSearchChrome = {
     if (typeof (win.gSelectVirtual) == 'undefined' || typeof (win.gFolderTreeView) == 'undefined') return;
     try {
       // How to deal with multi select and reverse?
-      win._expression_search.hookedFunctions.push(ExpressionSearchaop.around({ target: win.gSelectVirtual, method: '_toggle' }, function (invocation) {
+      win._expression_search.hookedFunctions.push(ExpressionSearchAOP.around({ target: win.gSelectVirtual, method: '_toggle' }, function (invocation) {
         let result = invocation.proceed(); // change folder's state first
         let typeSel = win.document.getElementById('esFolderType');
         let aRow = invocation.arguments[0];
