@@ -176,12 +176,18 @@ var ExpressionSearchChrome = {
         break;
     }
     if (data == 'enable_verbose_info') ExpressionSearchLog.setVerbose(this.options.enable_verbose_info);
-    if (['hide_normal_filer', 'move2bar', 'showbuttonlabel', 'enable_verbose_info', "results_label_size"].indexOf(data) >= 0)
+    if (['hide_normal_filer', 'move2bar', 'showbuttonlabel', 'enable_verbose_info', "results_label_size"].includes(data)) {
       this.three_panes.forEach(win => this.refreshFilterBar(win));
-    if (data == 'search_timeout')
+    }
+
+    if (data == 'search_timeout') {
       this.three_panes.forEach(win => this.setSearchTimeout(win));
+    }
   },
 
+  
+  
+  
   initFunctionHook: function (win) {
     if (typeof (win.QuickFilterBarMuxer) == 'undefined' || typeof (win.QuickFilterBarMuxer.reflectFiltererState) == 'undefined') return;
 
@@ -1009,14 +1015,11 @@ var ExpressionSearchChrome = {
         // On Mac, contextmenu is fired before onclick, thus even break onclick  still has context menu
         threadPane.addEventListener("contextmenu", me.onContextMenu, true);
       };
-      console.log("ExpressionSearchFilter  in  loadInto3pane");
-      console.log(ExpressionSearchFilter);
+      
       QuickFilterManager.defineFilter(ExpressionSearchFilter);
       QuickFilterManager.textBoxDomId = ExpressionSearchFilter.domId;
-      console.log("after defineFilter in loadinto3pane");
       let topWin = Services.wm.getMostRecentWindow("mail:3pane");
       topWin.QuickFilterBarMuxer._bindUI();
-      console.log("after _bindUI in loadinto3pane");
     } catch (ex) {
       ExpressionSearchLog.logException(ex);
     }
@@ -1036,7 +1039,13 @@ var ExpressionSearchChrome = {
     ExpressionSearchLog.info("start Load");
     let me = ExpressionSearchChrome;
     if (typeof (win._expression_search) != 'undefined') return ExpressionSearchLog.log("expression search already loaded, return");
-    win._expression_search = { createdElements: [], hookedFunctions: [], savedPosition: 0, timer: Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer), originalURI: undefined };
+    win._expression_search = {
+      createdElements: [],
+      hookedFunctions: [], 
+      savedPosition: 0, 
+      timer: Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer), 
+      originalURI: undefined
+    };
     win.ExpressionSearchChrome = ExpressionSearchChrome; // export ExpressionSearchChrome to windows name space
 
     let type = win.document.documentElement.getAttribute('windowtype');
