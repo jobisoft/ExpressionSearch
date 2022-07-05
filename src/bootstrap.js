@@ -18,7 +18,6 @@ async function loadIntoWindow(window) {
     window.es_loaded = true;
   };
 
-  ExpressionSearchChrome.init(); // will and add my filter, and TB want the domID exists when filter registered, so only called when have window ready
   ExpressionSearchChrome.Load(window);
 }
 
@@ -39,6 +38,8 @@ var windowListener = {
 
 function startup(aData, aReason) {
   console.log("Expression Search / Google Mail UI startup...");
+  ExpressionSearchChrome.init(); // will and add my filter, and TB want the domID exists when filter registered, so only called when have window ready
+
   let windows = Services.wm.getEnumerator(null);
   while (windows.hasMoreElements()) {
     let domWindow = windows.getNext();
@@ -71,7 +72,7 @@ function shutdown(aData, aReason) {
       let domWindow = winInterface.getInterface(Ci.nsIDOMWindow);
       ExpressionSearchChrome.unLoad(domWindow); // won't check windowtype as unload will check
     }
-    ExpressionSearchChrome.cleanup();
+    ExpressionSearchChrome.cleanupPrefs();
   } catch (err) { Cu.reportError(err); }
   
   // Unload JSMs of this add-on

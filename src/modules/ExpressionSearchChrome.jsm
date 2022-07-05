@@ -19,8 +19,6 @@ var { clearTimeout, setTimeout } = ChromeUtils.import("resource://gre/modules/Ti
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 
-var ExpressionSearchFilter = {};
-
 /* https://bugzilla.mozilla.org/show_bug.cgi?id=1383215#c24
 There are two ways that we currently support packaging omnijar:
 1) Separate JAR files for toolkit (GRE) content and app-specific content.
@@ -69,6 +67,7 @@ var {
 } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
 var { ExpressionSearchaop } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchAOP.jsm");
 var { ExpressionSearchCommon } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchCommon.jsm");
+var ExpressionSearchFilter = {};
 
 var ExpressionSearchChrome = {
   // if last key is Enter
@@ -83,133 +82,9 @@ var ExpressionSearchChrome = {
   prefs: null, // preference object
   options: {}, // preference strings
 
-  loaded: 0,
   init: function () {
-    //debugger;
-    console.log("ExpressionSearchChrome init", "loaded", this.loaded);
-    //  var  {ExpressionSearchLog} =  ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchLog.jsm"); // load log first
-    try {
-      console.log("Expression Search: init..importmodules.");//, false, true);
-      this.importModules();
-      ExpressionSearchLog.log("ExpressionSearchChrome int: end..importmodules.", false, true);
-
-    } catch (err) {
-      ExpressionSearchLog.logException(err);
-    }
-    //debugger;
-    console.log("loaded", this.loaded);
-    if (!this.loaded) {
-      if (!this.prefs && ExpressionSearchLog) {
-      //  ExpressionSearchLog.log("Expression Search is now restartless! ", 1);
-      } else return;
-    }
-    this.loaded = 1;
-    try {
-      ExpressionSearchLog.log("Expression Search: init...", false, true);
-      //      this.importModules();
-      this.initPerf();
-    } catch (err) {
-      ExpressionSearchLog.logException(err);
-    }
-  },
-
-  importModules: function () {
-    console.log("ExpressionSearchChrome importModules");
-    /* https://bugzilla.mozilla.org/show_bug.cgi?id=1383215#c24
-    There are two ways that we currently support packaging omnijar:
-    1) Separate JAR files for toolkit (GRE) content and app-specific content.
-    2) One JAR file containing both app-specific and toolkit content.
-    
-    Firefox uses the former (but used to use the latter), and Thunderbird uses the latter.
-    In case 2, resource:/// and resource://gre/ point to the same place, so it's technically possible to refer to app or toolkit content by two separate URLs,
-    and it's easy to carelessly use the wrong one. We had a bunch of these issues (especially with add-ons) when we switched layouts.
-    
-    But the code that's using resource://gre/ URLs for app content, or vice versa, is still technically wrong. */
-
-    //Cu.import("resource://expressionsearch/modules/gmailuiParse.jsm");
-    //var {ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens} = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
-
-    //.import("resource://expressionsearch/modules/ExpressionSearchAOP.jsm");
-    //  //Cu.import("resource://expressionsearch/modules/ExpressionSearchCommon.jsm");
-    //  var {ExpressionSearchCommon} = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchCommon.jsm");
-    // too late var  {ExpressionSearchLog} =  ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchLog.jsm"); // load log first
-    //console.log("nach import ExpressionSearchLog", ExpressionSearchLog);
-
-
-    /*
-      console.log("vor import ExpressionSearchLog in importmodules");
-      if (!ExpressionSearchLog ) {
-        console.log("ExpressionSearchLog  undefined");
-    //    {ExpressionSearchLog} =  ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchLog.jsm"); // load log first
-      var  { ExpressionSearchLog } =  ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchLog.jsm"); // load log first
-    };
-      console.log("nach import ExpressionSearchLog in importmodules", ExpressionSearchLog);
-    */
-    /*
-    console.log("vor ExpressionSearchaop");
-    var { ExpressionSearchaop } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchAOP.jsm");
-    console.log("nach ExpressionSearchaop", ExpressionSearchaop); 
-    */
-
-    /*
-    var { ExpressionSearchCommon } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchCommon.jsm");
-    
-    if (!ExpressionSearchComputeExpression ) {
-      console.log("nochmal GMAILUIParse in importmodules");
-      var { ExpressionSearchComputeExpression, ExpressionSearchExprToStringInfix, ExpressionSearchTokens } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
-      console.log("fertig GMAILUIParse in importmodules");
-    
-    }
-    
-    */
-    //console.log(this.loaded);
-    //if (this.loaded==0) ExpressionSearchLog.log("Expression Search is NOT restartless! Please restart Thunderbird!", 1);
-    //this.loaded=1;
-    //  var { ExpressionSearchFilter } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter.jsm");
-    console.log(" vor ExpressionSearchFilter");
     ExpressionSearchFilter = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter.jsm").ExpressionSearchFilter;
-    console.log("ExpressionSearchFilter");
-    console.log(ExpressionSearchFilter);
-
-    /*  
-      // for hook functions for attachment search
-      var { SearchSpec } = ChromeUtils.import("resource:///modules/SearchSpec.jsm");
-        // general services
-        var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-        var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
-           // for create quick search folder
-  //Cu.import("resource:///modules/virtualFolderWrapper.js"); // for VirtualFolderHelper
-      var { VirtualFolderHelper } = ChromeUtils.import(
-        "resource:///modules/VirtualFolderWrapper.jsm"
-      );
-      
-     
-     // Cu.import("resource:///modules/iteratorUtils.jsm");
-    //  Cu.import("resource:///modules/gloda/utils.js"); // for GlodaUtils.parseMailAddresses
-    var {GlodaUtils} = ChromeUtils.import("resource:///modules/gloda/glodautils.jsm");
-      //Cu.import("resource://gre/modules/AddonManager.jsm");
-      var { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
-      // need to know whether gloda enabled
-    //!!!
-   //   Cu.import("resource:///modules/gloda/indexer.js");
-    
-   
-  // XXX we need to know whether the gloda indexer is enabled for upsell reasons,
-  // but this should really just be exposed on the main Gloda public interface.
-  var { GlodaIndexer } = ChromeUtils.import(
-    "resource:///modules/gloda/GlodaIndexer.jsm"
-  );
-  
-   
-   
-   
-   // to call gloda search, actually no need
-      //Cu.import("resource:///modules/gloda/msg_search.js");
-      var {ExpressionSearchFilter} = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchFilter.jsm");
-      console.log("end importModulesit");
-  
-  
-    */
+    this.initPrefs();
   },
 
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1413413 Remove support for extensions having their own prefs file
@@ -239,7 +114,7 @@ var ExpressionSearchChrome = {
     }
   },
 
-  initPerf: function () {
+  initPrefs: function () {
     this.setDefaultPrefs();
     this.prefs = Services.prefs.getBranch("extensions.expressionsearch.");
     this.prefs.addObserver("", this, false);
@@ -252,6 +127,14 @@ var ExpressionSearchChrome = {
           ExpressionSearchLog.logException(err);
         }
       });
+  },
+
+  cleanupPrefs: function () {
+    console.log("ExpressionSearchChrome cleanup");
+    this.prefs.removeObserver("", ExpressionSearchChrome);
+    delete this.prefs;
+    this.hookedGlobalFunctions.forEach(hooked => hooked.unweave());
+    ExpressionSearchLog.info("Expression Search: cleanup done");
   },
 
   // get called when event occurs with our perf branch
@@ -404,14 +287,6 @@ var ExpressionSearchChrome = {
     }
     delete win._expression_search;
     delete win.ExpressionSearchChrome;
-  },
-
-  cleanup: function () {
-    console.log("ExpressionSearchChrome cleanup");
-    this.prefs.removeObserver("", ExpressionSearchChrome);
-    delete this.prefs;
-    this.hookedGlobalFunctions.forEach(hooked => hooked.unweave());
-    ExpressionSearchLog.info("Expression Search: cleanup done");
   },
 
   refreshFilterBar: function (win) {
@@ -1124,8 +999,6 @@ var ExpressionSearchChrome = {
       let topWin = Services.wm.getMostRecentWindow("mail:3pane");
       topWin.QuickFilterBarMuxer._bindUI();
       console.log("after _bindUI in loadinto3pane");
-      /**/
-      //     ExpressionSearchFilter.initTest();
     } catch (ex) {
       ExpressionSearchLog.logException(ex);
     }
