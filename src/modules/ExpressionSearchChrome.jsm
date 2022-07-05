@@ -72,9 +72,6 @@ const statusbarIconSrc = 'resource://expressionsearch/skin/statusbar_icon.png';
 const popupsetID = "expressionSearch-statusbar-popup";
 const contextMenuID = "expression-search-context-menu";
 const tooltipId = "expression-search-tooltip";
-const oldAPI_61 = Services.vc.compare(Services.appinfo.platformVersion, '61.0a1') < 0;
-const oldAPI_65 = Services.vc.compare(Services.appinfo.platformVersion, '65.0a1') < 0;
-const oldAPI_67 = Services.vc.compare(Services.appinfo.platformVersion, '67.0a1') < 0;
 
 let opstrings = Services.strings.createBundle('chrome://expressionsearch/locale/ExpressionSearch.properties');
 var ExpressionSearchChrome = {
@@ -220,11 +217,6 @@ var ExpressionSearchChrome = {
     */
   },
 
-  // https://bugzilla.mozilla.org/show_bug.cgi?id=1415567 Remove {get,set}ComplexValue use of nsISupportsString in Thunderbird
-  oldAPI_58: Services.vc.compare(Services.appinfo.platformVersion, '58') < 0,
-  complexPrefs: ["c2s_regexpMatch", "c2s_regexpReplace", "installed_version", "virtual_folder_path"],
-  //mozIJSSubScriptLoader: Components.classes["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader),
-
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1413413 Remove support for extensions having their own prefs file
   setDefaultPrefs: function () {
     let branch = Services.prefs.getDefaultBranch("");
@@ -295,12 +287,13 @@ var ExpressionSearchChrome = {
       case "search_timeout":
         this.options[data] = this.prefs.getIntPref(data);
         break;
+      case "c2s_regexpMatch":
+      case "c2s_regexpReplace":
+      case "installed_version":
+      case "virtual_folder_path":
+        this.prefs.getStringPref(data)
       default:
-        if (this.complexPrefs.indexOf(data) >= 0) {
-          this.options[data] = this.oldAPI_58 ? this.prefs.getComplexValue(data, Ci.nsISupportsString).data : this.prefs.getStringPref(data);
-        } else {
-          ExpressionSearchLog.log("Unknown perf key:" + data, "Error", 1);
-        }
+        ExpressionSearchLog.log("Unknown perf key:" + data, "Error", 1);
         break;
     }
     if (data == 'enable_verbose_info') ExpressionSearchLog.setVerbose(this.options.enable_verbose_info);
@@ -927,26 +920,17 @@ var ExpressionSearchChrome = {
 
   onContextMenu: function (event) {
     let me = ExpressionSearchChrome;
-    let target = oldAPI_67 ? event.currentTarget : event.composedTarget;
+    let target = event.composedTarget;
     if (!target) return;
-    let box = oldAPI_67 ? target.treeBoxObject : target.parentNode;
+    let box = target.parentNode;
     if (!box) return;
     let win = ExpressionSearchChrome.getWinFromEvent(event);
     let aNode = win.document.getElementById(ExpressionSearchChrome.textBoxDomId);
     if (!aNode || !win.gDBView || !win.gFolderDisplay) return;
     if (!me.CheckClickSearchEvent(event)) return;
-    let gFolderDisplay = win.gFolderDisplay;
-    let row = {}; let col = {};
-    if (oldAPI_67) {
-      let childElt = {};
-      box.getCellAt(event.clientX, event.clientY, row, col, childElt);
-      if (!row || !col || typeof (row.value) == 'undefined' || typeof (col.value) == 'undefined' || row.value < 0 || col.value == null) return;
-      // col.value.id: subjectCol, senderCol, recipientCol (may contains multi recipient, Comma Seprated), tagsCol, sio_inoutaddressCol (ShowInOut)
-      row = row.value; col = col.value;
-    } else {
-      let cell = box.getCellAt(event.clientX, event.clientY); // row => 1755, col => { id : 'sizeCol', columns : array }
-      row = cell.row; col = cell.col;
-    }
+    let cell = box.getCellAt(event.clientX, event.clientY); // row => 1755, col => { id : 'sizeCol', columns : array }
+    let row = cell.row; 
+    let col = cell.col;
     let token = "";
     let msgHdr = win.gDBView.getMsgHdrAt(row);
     let sCellText = box.view.getCellText(row, col);
@@ -1104,13 +1088,8 @@ var ExpressionSearchChrome = {
       this.createKeyset(win);
       this.createPopup(win); // simple menu popup may can be in statusbarpanel by set that to 'statusbarpanel-menu-iconic', but better not
       let statusbarPanel;
-      if (oldAPI_65) {
-        // https://bugzilla.mozilla.org/show_bug.cgi?id=1491660 [de-xbl] Migrate statusbar and statusbarpanel to custom element.
-        statusbarPanel = doc.createElementNS(XULNS, "statusbarpanel");
-      } else {
-        statusbarPanel = doc.createElementNS(XULNS, "hbox");
-        statusbarPanel.classList.add('statusbarpanel');
-      }
+      statusbarPanel = doc.createElementNS(XULNS, "hbox");
+      statusbarPanel.classList.add('statusbarpanel');
       let statusbarIcon = doc.createElementNS(XULNS, "image");
       statusbarIcon.id = statusbarIconID;
       statusbarIcon.setAttribute('src', statusbarIconSrc);
@@ -1183,17 +1162,10 @@ var ExpressionSearchChrome = {
     // first get my own version
     me.options.current_version = "0.0"; // in default.js, it's 0.1, so first installed users also have help loaded
     try {
-      if (oldAPI_61) {
-        AddonManager.getAddonByID("expressionsearch@opto.one", function (addon) {
-          me.options.current_version = addon.version;
-          me.firstRunAction.apply(me);
-        });
-      } else {
         AddonManager.getAddonByID("expressionsearch@opto.one").then(addon => {
           me.options.current_version = addon.version;
-          me.firstRunAction.apply(me);
+          me.firstRunAction.apply(me); //DELETE
         });
-      }
     } catch (ex) {
     }
 
