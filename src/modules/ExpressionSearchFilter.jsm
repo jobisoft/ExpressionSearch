@@ -5,16 +5,8 @@
 //Changes for TB 78+ (c) by Klaus Buecher/opto 2020-2021
 "use strict";
 
-var { 
-  nsMsgSearchAttrib: nsMsgSearchAttrib, 
-  nsMsgSearchOp: nsMsgSearchOp, 
-  nsMsgMessageFlags: nsMsgMessageFlags,
-  nsMsgSearchScope: nsMsgSearchScope 
-} = Ci;
-
 var EXPORTED_SYMBOLS = ["ExpressionSearchFilter"];
 var { ExtensionParent } = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
-var extension = ExtensionParent.GlobalManager.getExtension("expressionsearch@opto.one");
 
 var { ExpressionSearchChrome } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchChrome.jsm");
 var { ExpressionSearchLog } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchLog.jsm");
@@ -50,48 +42,67 @@ var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm"); // for readInputStreamToString
 var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm"); // JSMIME
 
-let platformIsMac = (AppConstants.platform == "macosx" ? true : false);
+let platformIsMac = AppConstants.platform == "macosx" ? true : false;
+
+// These two need some thinking, are they global? Why is badREs cleared for virtual folder creation?
 let haveBodyMapping = {}; // folderURI+messageKey => true (haveBody)
 let badREs = {};
 
-function _getRegEx(aSearchValue) {
-  /*
-   * If there are no flags added, you can add a regex expression without
-   * / delimiters. If we detect a / though, we will look for flags and
-   * add them to the regex search.
-   */
-  let searchValue = aSearchValue, regexp = /^__WONTMATCH__$/;
-  let searchFlags = "";
-  if (aSearchValue.charAt(0) == "/") {
-    let lastSlashIndex = aSearchValue.lastIndexOf("/");
-    if (lastSlashIndex == 0) lastSlashIndex = aSearchValue.length;
-    searchValue = aSearchValue.substring(1, lastSlashIndex);
-    searchFlags = aSearchValue.substring(lastSlashIndex + 1);
+class UtilsBase {
+  constructor() {
+    this.extension = ExtensionParent.GlobalManager.getExtension("expressionsearch@opto.one");
   }
-  try {
-    regexp = new RegExp(searchValue, searchFlags);
-  } catch (err) {
-    if (!badREs[aSearchValue]) {
-      badREs[aSearchValue] = true;
-      ExpressionSearchLog.log("Expression Search Caught Exception " + err.name + ":" + err.message + " with regex '" + aSearchValue + "'", 1);
+
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=818634 Remove support for Date.prototype.toLocaleFormat
+  // toLocaleTimeString depend on user settings
+  msgToLocaleFormat(aMsgHdr, format) {
+    // dateInSeconds*1M
+    return (new Date(aMsgHdr.date / 1000))
+      .toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) // "12/30/2012, 11:00:00"
+      .replace(/(\d+)\/(\d+)\/(\d+),\s(.*)/, format);
+  }
+
+  getRegEx(aSearchValue) {
+    /*
+     * If there are no flags added, you can add a regex expression without
+     * / delimiters. If we detect a / though, we will look for flags and
+     * add them to the regex search.
+     */
+    let searchValue = aSearchValue, regexp = /^__WONTMATCH__$/;
+    let searchFlags = "";
+    if (aSearchValue.charAt(0) == "/") {
+      let lastSlashIndex = aSearchValue.lastIndexOf("/");
+      if (lastSlashIndex == 0) lastSlashIndex = aSearchValue.length;
+      searchValue = aSearchValue.substring(1, lastSlashIndex);
+      searchFlags = aSearchValue.substring(lastSlashIndex + 1);
     }
+    try {
+      regexp = new RegExp(searchValue, searchFlags);
+    } catch (err) {
+      if (!badREs[aSearchValue]) {
+        badREs[aSearchValue] = true;
+        ExpressionSearchLog.log("Expression Search Caught Exception " + err.name + ":" + err.message + " with regex '" + aSearchValue + "'", 1);
+      }
+    }
+    return regexp;
   }
-  return regexp;
 }
 
-// File scope code is being executed the first time the JSM is loaded. But on reload, the terms may
-// point to dead code (for example nsMsgSearchScope), so wee need to find a way to unload terms.
-(function AddExpressionSearchCustomerTerms() {
-  function customerTermBase(nameId, Operators) {
+// On reload, the terms cannot be updated and therefore may not point to extension code (the used instance is no
+// longer there after unloading). So customTerms have to include all the code they need.
+class CustomerTermBase extends UtilsBase {
+  constructor(nameId, Operators) {
+    super();
+
     let self = this; // In constructors, this is always your instance. Just for safe.
     self.id = "expressionsearch#" + nameId;
-    self.name = extension.localeData.localizeMessage(nameId);
+    self.name = this.extension.localeData.localizeMessage(nameId);
     self.needsBody = false;
     self._isValid = function _isValid(aSearchScope) {
-      if (aSearchScope == nsMsgSearchScope.LDAP || aSearchScope == nsMsgSearchScope.LDAPAnd || aSearchScope == nsMsgSearchScope.LocalAB || aSearchScope == nsMsgSearchScope.LocalABAnd) return false;
+      if (aSearchScope == Ci.nsMsgSearchScope.LDAP || aSearchScope == Ci.nsMsgSearchScope.LDAPAnd || aSearchScope == Ci.nsMsgSearchScope.LocalAB || aSearchScope == Ci.nsMsgSearchScope.LocalABAnd) return false;
       if (!self.needsBody) return true;
-      if (aSearchScope == nsMsgSearchScope.offlineMail || aSearchScope == nsMsgSearchScope.offlineMailFilter
-        || aSearchScope == nsMsgSearchScope.localNewsBody || aSearchScope == nsMsgSearchScope.localNewsJunkBody) return true;
+      if (aSearchScope == Ci.nsMsgSearchScope.offlineMail || aSearchScope == Ci.nsMsgSearchScope.offlineMailFilter
+        || aSearchScope == Ci.nsMsgSearchScope.localNewsBody || aSearchScope == Ci.nsMsgSearchScope.localNewsJunkBody) return true;
       return false;
       //onlineManual 
     };
@@ -112,121 +123,19 @@ function _getRegEx(aSearchValue) {
       return Operators;
     };
   }
+}
 
-  // search subject with regular expression, reference FiltaQuilla by Kent James
-  // case sensitive
-  let subjectRegex = new customerTermBase("subjectRegex", [nsMsgSearchOp.Matches, nsMsgSearchOp.DoesntMatch]);
-  subjectRegex.match = function _match(aMsgHdr, aSearchValue, aSearchOp) {
-    // aMsgHdr.subject is mime encoded, also aMsgHdr.subject may has line breaks in it
-    // Upon putting subject into msg db, all Re:'s are stripped and MSG_FLAG_HAS_RE flag is set. 
-    let subject = aMsgHdr.mime2DecodedSubject || '';
-    if (aMsgHdr.flags & Ci.nsMsgMessageFlags.HasRe) subject = "Re: " + subject; // mailnews.localizedRe ?
-    return _getRegEx(aSearchValue).test(subject) ^ (aSearchOp == nsMsgSearchOp.DoesntMatch);
-  };
+// https://bugzilla.mozilla.org/show_bug.cgi?id=959309 - Finish JSMime 0.2 and land it on comm-central 
+// https://bugzilla.mozilla.org/show_bug.cgi?id=858337 - Implement header parsing in JSMime 
+// https://bugzilla.mozilla.org/show_bug.cgi?id=790855 - Make the new MIME parser charset-aware 
+class Emitter extends UtilsBase {
+  constructor(msgData, aSearchValue, nameId) {
+    super();
 
-  // workaround for Bug 124641 - Thunderbird does not handle multi-line headers correctly when search term spans lines
-  // case sensitive, not like normal subject search
-  // Now the bug was fixed after TB5.0, but still usefull when subject contains special characters
-  let subjectSimple = new customerTermBase("subjectSimple", [nsMsgSearchOp.Contains, nsMsgSearchOp.DoesntContain]);
-  subjectSimple.match = function _match(aMsgHdr, aSearchValue, aSearchOp) {
-    return (aMsgHdr.mime2DecodedSubject.indexOf(aSearchValue) != -1) ^ (aSearchOp == nsMsgSearchOp.DoesntContain);
-  };
-
-  let headerRegex = new customerTermBase("headerRegex", [nsMsgSearchOp.Matches, nsMsgSearchOp.DoesntMatch]);
-  headerRegex.match = function _match(aMsgHdr, aSearchValue, aSearchOp) {
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=363238
-    // https://developer.mozilla.org/en-US/docs/Extensions/Thunderbird/customDBHeaders_Preference
-    // https://github.com/protz/thunderbird-stdlib/blob/master/msgHdrUtils.js msgHdrGetHeaders
-    // the header and its regex are separated by a '~' or '=' in aSearchValue
-    // 'List-Id=/all-test/i' will match all messages that have List-ID header, and it's content match /all-test/i
-    // 'List-ID' will match all messages that have this header.
-    // flags, label, statusOfset, sender, recipients, ccList, subject, message-id, references, date, dateReceived
-    // priority, msgCharSet, size, numLines, offlineMsgSize, threadParent, msgThreadId, ProtoThreadFlags, gloda-id, sender_name, gloda-dirty, recipient_names
-
-    // let e = aMsgHdr.propertyEnumerator; let str = "property:\n";
-    // while ( e.hasMore() ) { let k = e.getNext(); str += k + ":" + aMsgHdr.getStringProperty(k) + "\n"; }
-    // ExpressionSearchLog.log(str);
-    // ExpressionSearchLog.logObject(aMsgHdr,'aMsgHdr',0);
-    // flags:1 label:0 statusOfset:21 sender:<cc@some.com> recipients:swe-web@some.com subject:[swe-web] Error: Web Applications Down message-id:201202030701.q1371Noo014742@peopf999.some.com date:4f2b8643 dateReceived:4f2b864b priority:1 list-id:<swe-web.some.com> x-mime-autoconverted:from quoted-printable to 8bit by sympa.some.com id q1371O8j002081 msgCharSet:iso-8859-1 msgOffset:1f6e size:4728 numLines:180 storeToken:8046 threadParent:ffffffff msgThreadId:1f6e ProtoThreadFlags:0 sender_name:2453|swe-web@some.COM
-    // Can't add content-type/receieved etc to customDBHeaders which thunderbird already parsed and removed from header
-
-    let headerName = aSearchValue.toLowerCase();
-    let splitIndex = aSearchValue.indexOf('~');
-    if (splitIndex == -1) splitIndex = aSearchValue.indexOf('=');
-    if (splitIndex == -1) {
-      let headerValue = aMsgHdr.getStringProperty(headerName);
-      return ((headerValue != '') ^ (aSearchOp == nsMsgSearchOp.DoesntMatch));
-    }
-    headerName = aSearchValue.slice(0, splitIndex);
-    let regex = aSearchValue.slice(splitIndex + 1);
-    let headerValue = aMsgHdr.getStringProperty(headerName);
-    return _getRegEx(regex).test(headerValue) ^ (aSearchOp == nsMsgSearchOp.DoesntMatch);
-  };
-
-  // https://bugzilla.mozilla.org/show_bug.cgi?id=818634 Remove support for Date.prototype.toLocaleFormat
-  // toLocaleTimeString depend on user settings
-  function msgToLocaleFormat(aMsgHdr, format) {
-    // dateInSeconds*1M
-    return (new Date(aMsgHdr.date / 1000))
-      .toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) // "12/30/2012, 11:00:00"
-      .replace(/(\d+)\/(\d+)\/(\d+),\s(.*)/, format);
-  }
-
-  let dayTime = new customerTermBase("dayTime", [nsMsgSearchOp.IsBefore, nsMsgSearchOp.IsAfter]);
-  dayTime.match = function _match(aMsgHdr, aSearchValue, aSearchOp) {
-    return (msgToLocaleFormat(aMsgHdr, '$4') > aSearchValue) ^ (aSearchOp == nsMsgSearchOp.IsBefore);
-  };
-
-  let dateMatch = new customerTermBase("dateMatch", [nsMsgSearchOp.Contains, nsMsgSearchOp.DoesntContain]);
-  dateMatch.match = function _match(aMsgHdr, aSearchValue, aSearchOp) {
-    let msgTimeUser = (new Date(aMsgHdr.date / 1000)).toLocaleString();
-    let msgTimeStandard = msgToLocaleFormat(aMsgHdr, '$3/$1/$2 $4');
-    return (msgTimeUser.indexOf(aSearchValue) != -1 || msgTimeStandard.indexOf(aSearchValue) != -1) ^ (aSearchOp == nsMsgSearchOp.DoesntContain);
-  };
-
-  let bccSearch = new customerTermBase("Bcc", [nsMsgSearchOp.Contains, nsMsgSearchOp.DoesntContain]);
-  bccSearch.match = function _match(aMsgHdr, aSearchValue, aSearchOp) {
-    return (GlodaUtils.deMime(aMsgHdr.bccList).toLowerCase().indexOf(aSearchValue.toLowerCase()) != -1) ^ (aSearchOp == nsMsgSearchOp.DoesntContain);
-  };
-
-  let fromRegex = new customerTermBase("fromRegex", [nsMsgSearchOp.Matches, nsMsgSearchOp.DoesntMatch]);
-  fromRegex.match = function _match(aMsgHdr, aSearchValue, aSearchOp) {
-    return _getRegEx(aSearchValue).test(aMsgHdr.mime2DecodedAuthor) ^ (aSearchOp == nsMsgSearchOp.DoesntMatch);
-  };
-
-  let toRegex = new customerTermBase("toRegex", [nsMsgSearchOp.Matches, nsMsgSearchOp.DoesntMatch]);
-  toRegex.match = function _match(aMsgHdr, aSearchValue, aSearchOp) {
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=522886
-    // parseMailAddresses will do mimeDecode
-    let to = aMsgHdr.mime2DecodedTo ? aMsgHdr.mime2DecodedRecipients : GlodaUtils.parseMailAddresses([aMsgHdr.recipients, aMsgHdr.ccList, aMsgHdr.bccList].join(', ')).fullAddresses.join(', ');
-    return _getRegEx(aSearchValue).test(to) ^ (aSearchOp == nsMsgSearchOp.DoesntMatch);
-  };
-
-  let toSomebodyOnly = new customerTermBase("toSomebodyOnly", [nsMsgSearchOp.Contains, nsMsgSearchOp.DoesntContain]);
-  toSomebodyOnly.match = function _match(aMsgHdr, aSearchValue, aSearchOp) {
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=522886 / https://bugzilla.mozilla.org/show_bug.cgi?id=699588
-    let mailRecipients = GlodaUtils.parseMailAddresses((aMsgHdr.mime2DecodedTo || aMsgHdr.mime2DecodedRecipients).toLowerCase());
-    let searchRecipients = GlodaUtils.parseMailAddresses(aSearchValue.toLowerCase());
-    let match = (mailRecipients.count == searchRecipients.count);
-    match = match && searchRecipients.addresses.every(function (searchOne, index, array) {
-      // if only:weiw then searchOne will be '', searching using name instead
-      if (!searchOne.length) searchOne = searchRecipients.names[index];
-      // can't use aMsgHdr.mime2DecodedRecipients.toLowerCase().indexOf() because the recipient may in our addressbook and TB show it's Name instead of address
-      return mailRecipients.fullAddresses.some(function (recipientOne, index, array) {
-        if (recipientOne.indexOf(searchOne) != -1) return true; // found one in mailRecipients
-      });
-    });
-    return (match ^ (aSearchOp == nsMsgSearchOp.DoesntContain));
-  };
-
-  // https://bugzilla.mozilla.org/show_bug.cgi?id=959309 - Finish JSMime 0.2 and land it on comm-central 
-  // https://bugzilla.mozilla.org/show_bug.cgi?id=858337 - Implement header parsing in JSMime 
-  // https://bugzilla.mozilla.org/show_bug.cgi?id=790855 - Make the new MIME parser charset-aware 
-  let emitter = function (msgData, aSearchValue, nameId) {
     let searchValue, regexp;
     let attachmentSearch = (nameId == "attachmentNameOrType");
     if (attachmentSearch) searchValue = aSearchValue.toLowerCase();
-    else regexp = _getRegEx(aSearchValue);
+    else regexp = this.getRegEx(aSearchValue);
     let rfc822Parts = {}, contentDict = {}, bodyParts = {};
     let me = this;
     me.found = false;
@@ -312,13 +221,15 @@ function _getRegEx(aSearchValue) {
     if (attachmentSearch) options = { bodyformat: 'none' };
     else options = { bodyformat: 'decode', strformat: 'unicode' }; // JSMIME 0.1 will ignore strformat
     MimeParser.parseSync(msgData, me, options);
-  };
+  }
+}
 
-  function bodyTermBase(nameId, Operators, resultFunc) {
-    let self = this;
-    customerTermBase.call(self, nameId, Operators);
-    self.needsBody = true;
-    self.match = function _match(aMsgHdr, aSearchValue, aSearchOp) {
+class BodyTermBase extends CustomerTermBase {
+  constructor(nameId, Operators, resultFunc) {
+    super(nameId, Operators);
+
+    this.needsBody = true;
+    this.match = function (aMsgHdr, aSearchValue, aSearchOp) {
       let folder = aMsgHdr.folder;
       try {
         if (folder.getMsgInputStream && ((aMsgHdr.flags & Ci.nsMsgMessageFlags.Offline) || folder instanceof Ci.nsIMsgLocalMailFolder)) {
@@ -328,7 +239,7 @@ function _getRegEx(aSearchValue) {
           } catch (err) { ExpressionSearchLog.logException(err); }
           if (!reusable.value) stream.close(); // close if not reusable
           if (typeof (data) != 'undefined') {
-            let emitterInstance = new emitter(data, aSearchValue, nameId);
+            let emitterInstance = new Emitter(data, aSearchValue, nameId);
             haveBodyMapping[folder.URI + " | " + aMsgHdr.messageKey] = true;
             return resultFunc.call(null, emitterInstance, aSearchOp);
           }
@@ -337,28 +248,128 @@ function _getRegEx(aSearchValue) {
       return haveBodyMapping[folder.URI + " | " + aMsgHdr.messageKey] = false;
     }
   }
+}
+
+// File scope code is being executed the first time the JSM is loaded. This adds our custom terms.
+(function AddExpressionSearchCustomerTerms() {
+  // search subject with regular expression, reference FiltaQuilla by Kent James
+  // case sensitive
+  let subjectRegex = new CustomerTermBase("subjectRegex", [Ci.nsMsgSearchOp.Matches, Ci.nsMsgSearchOp.DoesntMatch]);
+  subjectRegex.match = function (aMsgHdr, aSearchValue, aSearchOp) {
+    // aMsgHdr.subject is mime encoded, also aMsgHdr.subject may has line breaks in it
+    // Upon putting subject into msg db, all Re:'s are stripped and MSG_FLAG_HAS_RE flag is set. 
+    let subject = aMsgHdr.mime2DecodedSubject || '';
+    if (aMsgHdr.flags & Ci.nsMsgMessageFlags.HasRe) subject = "Re: " + subject; // mailnews.localizedRe ?
+    return this.getRegEx(aSearchValue).test(subject) ^ (aSearchOp == Ci.nsMsgSearchOp.DoesntMatch);
+  };
+
+  // workaround for Bug 124641 - Thunderbird does not handle multi-line headers correctly when search term spans lines
+  // case sensitive, not like normal subject search
+  // Now the bug was fixed after TB5.0, but still usefull when subject contains special characters
+  let subjectSimple = new CustomerTermBase("subjectSimple", [Ci.nsMsgSearchOp.Contains, Ci.nsMsgSearchOp.DoesntContain]);
+  subjectSimple.match = function (aMsgHdr, aSearchValue, aSearchOp) {
+    return (aMsgHdr.mime2DecodedSubject.indexOf(aSearchValue) != -1) ^ (aSearchOp == Ci.nsMsgSearchOp.DoesntContain);
+  };
+
+  let headerRegex = new CustomerTermBase("headerRegex", [Ci.nsMsgSearchOp.Matches, Ci.nsMsgSearchOp.DoesntMatch]);
+  headerRegex.match = function (aMsgHdr, aSearchValue, aSearchOp) {
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=363238
+    // https://developer.mozilla.org/en-US/docs/Extensions/Thunderbird/customDBHeaders_Preference
+    // https://github.com/protz/thunderbird-stdlib/blob/master/msgHdrUtils.js msgHdrGetHeaders
+    // the header and its regex are separated by a '~' or '=' in aSearchValue
+    // 'List-Id=/all-test/i' will match all messages that have List-ID header, and it's content match /all-test/i
+    // 'List-ID' will match all messages that have this header.
+    // flags, label, statusOfset, sender, recipients, ccList, subject, message-id, references, date, dateReceived
+    // priority, msgCharSet, size, numLines, offlineMsgSize, threadParent, msgThreadId, ProtoThreadFlags, gloda-id, sender_name, gloda-dirty, recipient_names
+
+    // let e = aMsgHdr.propertyEnumerator; let str = "property:\n";
+    // while ( e.hasMore() ) { let k = e.getNext(); str += k + ":" + aMsgHdr.getStringProperty(k) + "\n"; }
+    // ExpressionSearchLog.log(str);
+    // ExpressionSearchLog.logObject(aMsgHdr,'aMsgHdr',0);
+    // flags:1 label:0 statusOfset:21 sender:<cc@some.com> recipients:swe-web@some.com subject:[swe-web] Error: Web Applications Down message-id:201202030701.q1371Noo014742@peopf999.some.com date:4f2b8643 dateReceived:4f2b864b priority:1 list-id:<swe-web.some.com> x-mime-autoconverted:from quoted-printable to 8bit by sympa.some.com id q1371O8j002081 msgCharSet:iso-8859-1 msgOffset:1f6e size:4728 numLines:180 storeToken:8046 threadParent:ffffffff msgThreadId:1f6e ProtoThreadFlags:0 sender_name:2453|swe-web@some.COM
+    // Can't add content-type/receieved etc to customDBHeaders which thunderbird already parsed and removed from header
+
+    let headerName = aSearchValue.toLowerCase();
+    let splitIndex = aSearchValue.indexOf('~');
+    if (splitIndex == -1) splitIndex = aSearchValue.indexOf('=');
+    if (splitIndex == -1) {
+      let headerValue = aMsgHdr.getStringProperty(headerName);
+      return ((headerValue != '') ^ (aSearchOp == Ci.nsMsgSearchOp.DoesntMatch));
+    }
+    headerName = aSearchValue.slice(0, splitIndex);
+    let regex = aSearchValue.slice(splitIndex + 1);
+    let headerValue = aMsgHdr.getStringProperty(headerName);
+    return this.getRegEx(regex).test(headerValue) ^ (aSearchOp == Ci.nsMsgSearchOp.DoesntMatch);
+  };
+
+  let dayTime = new CustomerTermBase("dayTime", [Ci.nsMsgSearchOp.IsBefore, Ci.nsMsgSearchOp.IsAfter]);
+  dayTime.match = function (aMsgHdr, aSearchValue, aSearchOp) {
+    return (this.msgToLocaleFormat(aMsgHdr, '$4') > aSearchValue) ^ (aSearchOp == Ci.nsMsgSearchOp.IsBefore);
+  };
+
+  let dateMatch = new CustomerTermBase("dateMatch", [Ci.nsMsgSearchOp.Contains, Ci.nsMsgSearchOp.DoesntContain]);
+  dateMatch.match = function (aMsgHdr, aSearchValue, aSearchOp) {
+    let msgTimeUser = (new Date(aMsgHdr.date / 1000)).toLocaleString();
+    let msgTimeStandard = this.msgToLocaleFormat(aMsgHdr, '$3/$1/$2 $4');
+    return (msgTimeUser.indexOf(aSearchValue) != -1 || msgTimeStandard.indexOf(aSearchValue) != -1) ^ (aSearchOp == Ci.nsMsgSearchOp.DoesntContain);
+  };
+
+  let bccSearch = new CustomerTermBase("Bcc", [Ci.nsMsgSearchOp.Contains, Ci.nsMsgSearchOp.DoesntContain]);
+  bccSearch.match = function (aMsgHdr, aSearchValue, aSearchOp) {
+    return (GlodaUtils.deMime(aMsgHdr.bccList).toLowerCase().indexOf(aSearchValue.toLowerCase()) != -1) ^ (aSearchOp == Ci.nsMsgSearchOp.DoesntContain);
+  };
+
+  let fromRegex = new CustomerTermBase("fromRegex", [Ci.nsMsgSearchOp.Matches, Ci.nsMsgSearchOp.DoesntMatch]);
+  fromRegex.match = function (aMsgHdr, aSearchValue, aSearchOp) {
+    return this.getRegEx(aSearchValue).test(aMsgHdr.mime2DecodedAuthor) ^ (aSearchOp == Ci.nsMsgSearchOp.DoesntMatch);
+  };
+
+  let toRegex = new CustomerTermBase("toRegex", [Ci.nsMsgSearchOp.Matches, Ci.nsMsgSearchOp.DoesntMatch]);
+  toRegex.match = function (aMsgHdr, aSearchValue, aSearchOp) {
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=522886
+    // parseMailAddresses will do mimeDecode
+    let to = aMsgHdr.mime2DecodedTo ? aMsgHdr.mime2DecodedRecipients : GlodaUtils.parseMailAddresses([aMsgHdr.recipients, aMsgHdr.ccList, aMsgHdr.bccList].join(', ')).fullAddresses.join(', ');
+    return this.getRegEx(aSearchValue).test(to) ^ (aSearchOp == Ci.nsMsgSearchOp.DoesntMatch);
+  };
+
+  let toSomebodyOnly = new CustomerTermBase("toSomebodyOnly", [Ci.nsMsgSearchOp.Contains, Ci.nsMsgSearchOp.DoesntContain]);
+  toSomebodyOnly.match = function (aMsgHdr, aSearchValue, aSearchOp) {
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=522886 / https://bugzilla.mozilla.org/show_bug.cgi?id=699588
+    let mailRecipients = GlodaUtils.parseMailAddresses((aMsgHdr.mime2DecodedTo || aMsgHdr.mime2DecodedRecipients).toLowerCase());
+    let searchRecipients = GlodaUtils.parseMailAddresses(aSearchValue.toLowerCase());
+    let match = (mailRecipients.count == searchRecipients.count);
+    match = match && searchRecipients.addresses.every(function (searchOne, index, array) {
+      // if only:weiw then searchOne will be '', searching using name instead
+      if (!searchOne.length) searchOne = searchRecipients.names[index];
+      // can't use aMsgHdr.mime2DecodedRecipients.toLowerCase().indexOf() because the recipient may in our addressbook and TB show it's Name instead of address
+      return mailRecipients.fullAddresses.some(function (recipientOne, index, array) {
+        if (recipientOne.indexOf(searchOne) != -1) return true; // found one in mailRecipients
+      });
+    });
+    return (match ^ (aSearchOp == Ci.nsMsgSearchOp.DoesntContain));
+  };
 
   // case insensitive
-  let attachmentNameOrType = new bodyTermBase("attachmentNameOrType", [nsMsgSearchOp.Contains, nsMsgSearchOp.DoesntContain], function (emitterInstance, aSearchOp) {
+  let attachmentNameOrType = new BodyTermBase("attachmentNameOrType", [Ci.nsMsgSearchOp.Contains, Ci.nsMsgSearchOp.DoesntContain], function (emitterInstance, aSearchOp) {
     if (!emitterInstance.haveAttachment) return false; // always return false when no attachment
-    return emitterInstance.found ^ (aSearchOp == nsMsgSearchOp.DoesntMatch);
+    return emitterInstance.found ^ (aSearchOp == Ci.nsMsgSearchOp.DoesntMatch);
   });
 
-  let bodyRegex = new bodyTermBase("bodyRegex", [nsMsgSearchOp.Matches, nsMsgSearchOp.DoesntMatch], function (emitterInstance, aSearchOp) {
-    return emitterInstance.found ^ (aSearchOp == nsMsgSearchOp.DoesntMatch);
+  let bodyRegex = new BodyTermBase("bodyRegex", [Ci.nsMsgSearchOp.Matches, Ci.nsMsgSearchOp.DoesntMatch], function (emitterInstance, aSearchOp) {
+    return emitterInstance.found ^ (aSearchOp == Ci.nsMsgSearchOp.DoesntMatch);
   });
 
-  if (!MailServices.filters.getCustomTerm("expressionsearch#Bcc") ) { console.log("Adding Bcc"); MailServices.filters.addCustomTerm(bccSearch);}
-  if (!MailServices.filters.getCustomTerm("expressionsearch#toSomebodyOnly") ) { console.log("Adding toSomebodyOnly"); MailServices.filters.addCustomTerm(toSomebodyOnly);}
-  if (!MailServices.filters.getCustomTerm("expressionsearch#subjectRegex") ) { console.log("Adding subjectRegex"); MailServices.filters.addCustomTerm(subjectRegex);}
-  if (!MailServices.filters.getCustomTerm("expressionsearch#subjectSimple") ) { console.log("Adding subjectSimple"); MailServices.filters.addCustomTerm(subjectSimple);}
-  if (!MailServices.filters.getCustomTerm("expressionsearch#headerRegex") ) { console.log("Adding headerRegex"); MailServices.filters.addCustomTerm(headerRegex);}
-  if (!MailServices.filters.getCustomTerm("expressionsearch#fromRegex") ) { console.log("Adding fromRegex"); MailServices.filters.addCustomTerm(fromRegex);}
-  if (!MailServices.filters.getCustomTerm("expressionsearch#toRegex") ) { console.log("Adding toRegex"); MailServices.filters.addCustomTerm(toRegex);}
-  if (!MailServices.filters.getCustomTerm("expressionsearch#dayTime") ) { console.log("Adding dayTime"); MailServices.filters.addCustomTerm(dayTime);}
-  if (!MailServices.filters.getCustomTerm("expressionsearch#dateMatch") ) { console.log("Adding dateMatch"); MailServices.filters.addCustomTerm(dateMatch);}
-  if (!MailServices.filters.getCustomTerm("expressionsearch#attachmentNameOrType") ) { console.log("Adding attachmentNameOrType"); MailServices.filters.addCustomTerm(attachmentNameOrType);}
-  if (!MailServices.filters.getCustomTerm("expressionsearch#bodyRegex") ) { console.log("Adding bodyRegex"); MailServices.filters.addCustomTerm(bodyRegex);}
+  if (!MailServices.filters.getCustomTerm("expressionsearch#Bcc")) { console.log("Adding Bcc"); MailServices.filters.addCustomTerm(bccSearch); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#toSomebodyOnly")) { console.log("Adding toSomebodyOnly"); MailServices.filters.addCustomTerm(toSomebodyOnly); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#subjectRegex")) { console.log("Adding subjectRegex"); MailServices.filters.addCustomTerm(subjectRegex); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#subjectSimple")) { console.log("Adding subjectSimple"); MailServices.filters.addCustomTerm(subjectSimple); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#headerRegex")) { console.log("Adding headerRegex"); MailServices.filters.addCustomTerm(headerRegex); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#fromRegex")) { console.log("Adding fromRegex"); MailServices.filters.addCustomTerm(fromRegex); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#toRegex")) { console.log("Adding toRegex"); MailServices.filters.addCustomTerm(toRegex); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#dayTime")) { console.log("Adding dayTime"); MailServices.filters.addCustomTerm(dayTime); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#dateMatch")) { console.log("Adding dateMatch"); MailServices.filters.addCustomTerm(dateMatch); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#attachmentNameOrType")) { console.log("Adding attachmentNameOrType"); MailServices.filters.addCustomTerm(attachmentNameOrType); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#bodyRegex")) { console.log("Adding bodyRegex"); MailServices.filters.addCustomTerm(bodyRegex); }
 })()
 
 let ExpressionSearchFilter = {
@@ -493,9 +504,9 @@ let ExpressionSearchFilter = {
   // change DOM status, eg disabled, checked, etc.
   // by AMuxer.onActiveAllMessagesLoaded or reflectFiltererState
   reflectInDOM: function (
-    aNode, 
+    aNode,
     aFilterValue, // aFilterValue is the 1st value PFT returns
-    aDocument, 
+    aDocument,
     aMuxer,
     aFromPFP
   ) {
@@ -560,9 +571,9 @@ let ExpressionSearchFilter = {
     console.log("addSearchTerm");
 
     let aCustomId;
-    if (typeof (attr) == 'object' && attr.type == nsMsgSearchAttrib.Custom) {
+    if (typeof (attr) == 'object' && attr.type == Ci.nsMsgSearchAttrib.Custom) {
       aCustomId = attr.customId;
-      attr = nsMsgSearchAttrib.Custom;
+      attr = Ci.nsMsgSearchAttrib.Custom;
     }
     var term, value;
     term = aTermCreator.createTerm();
@@ -571,26 +582,26 @@ let ExpressionSearchFilter = {
     // This is tricky - value.attrib must be set before actual values, from searchTestUtils.js 
     value.attrib = attr;
 
-    if (attr == nsMsgSearchAttrib.JunkPercent)
+    if (attr == Ci.nsMsgSearchAttrib.JunkPercent)
       value.junkPercent = str;
-    else if (attr == nsMsgSearchAttrib.Priority)
+    else if (attr == Ci.nsMsgSearchAttrib.Priority)
       value.priority = str;
-    else if (attr == nsMsgSearchAttrib.Date)
+    else if (attr == Ci.nsMsgSearchAttrib.Date)
       value.date = str;
-    else if (attr == nsMsgSearchAttrib.MsgStatus || attr == nsMsgSearchAttrib.FolderFlag || attr == nsMsgSearchAttrib.Uint32HdrProperty)
+    else if (attr == Ci.nsMsgSearchAttrib.MsgStatus || attr == Ci.nsMsgSearchAttrib.FolderFlag || attr == Ci.nsMsgSearchAttrib.Uint32HdrProperty)
       value.status = str;
-    else if (attr == nsMsgSearchAttrib.MessageKey)
+    else if (attr == Ci.nsMsgSearchAttrib.MessageKey)
       value.msgKey = str;
-    else if (attr == nsMsgSearchAttrib.Size)
+    else if (attr == Ci.nsMsgSearchAttrib.Size)
       value.size = str;
-    else if (attr == nsMsgSearchAttrib.AgeInDays)
+    else if (attr == Ci.nsMsgSearchAttrib.AgeInDays)
       value.age = str;
-    else if (attr == nsMsgSearchAttrib.Label)
+    else if (attr == Ci.nsMsgSearchAttrib.Label)
       value.label = str;
-    else if (attr == nsMsgSearchAttrib.JunkStatus)
+    else if (attr == Ci.nsMsgSearchAttrib.JunkStatus)
       value.junkStatus = str;
-    else if (attr == nsMsgSearchAttrib.HasAttachmentStatus)
-      value.status = nsMsgMessageFlags.Attachment;
+    else if (attr == Ci.nsMsgSearchAttrib.HasAttachmentStatus)
+      value.status = Ci.nsMsgMessageFlags.Attachment;
     else
       value.str = str;
 
@@ -598,11 +609,11 @@ let ExpressionSearchFilter = {
     term.op = op;
     term.booleanAnd = !is_or;
 
-    if (attr == nsMsgSearchAttrib.Custom)
+    if (attr == Ci.nsMsgSearchAttrib.Custom)
       term.customId = aCustomId;
-    else if (attr == nsMsgSearchAttrib.OtherHeader)
+    else if (attr == Ci.nsMsgSearchAttrib.OtherHeader)
       term.arbitraryHeader = aArbitraryHeader;
-    else if (attr == nsMsgSearchAttrib.HdrProperty || attr == nsMsgSearchAttrib.Uint32HdrProperty)
+    else if (attr == Ci.nsMsgSearchAttrib.HdrProperty || attr == Ci.nsMsgSearchAttrib.Uint32HdrProperty)
       term.hdrProperty = aHdrProperty;
 
     searchTerms.push(term);
@@ -682,34 +693,34 @@ let ExpressionSearchFilter = {
     }
     if (e.kind == 'spec') {
       let attr;
-      let op = is_not ? nsMsgSearchOp.DoesntContain : nsMsgSearchOp.Contains;
-      if (e.tok == 'from') attr = nsMsgSearchAttrib.Sender;
-      else if (e.tok == 'fromto') attr = nsMsgSearchAttrib.AllAddresses;
-      else if (e.tok == 'to') attr = nsMsgSearchAttrib.ToOrCC;
-      else if (e.tok == 'tonocc') attr = nsMsgSearchAttrib.To;
-      else if (e.tok == 'cc') attr = nsMsgSearchAttrib.CC;
-      else if (e.tok == 'days' || e.tok == 'older_than' || e.tok == 'newer_than') attr = nsMsgSearchAttrib.AgeInDays;
+      let op = is_not ? Ci.nsMsgSearchOp.DoesntContain : Ci.nsMsgSearchOp.Contains;
+      if (e.tok == 'from') attr = Ci.nsMsgSearchAttrib.Sender;
+      else if (e.tok == 'fromto') attr = Ci.nsMsgSearchAttrib.AllAddresses;
+      else if (e.tok == 'to') attr = Ci.nsMsgSearchAttrib.ToOrCC;
+      else if (e.tok == 'tonocc') attr = Ci.nsMsgSearchAttrib.To;
+      else if (e.tok == 'cc') attr = Ci.nsMsgSearchAttrib.CC;
+      else if (e.tok == 'days' || e.tok == 'older_than' || e.tok == 'newer_than') attr = Ci.nsMsgSearchAttrib.AgeInDays;
       // AllAddresses,AnyText,Size,Name,DisplayName,Nickname,ScreenName,Email,AdditionalEmail
-      else if (e.tok == 'subject') attr = nsMsgSearchAttrib.Subject;
-      else if (e.tok == 'bcc') attr = { type: nsMsgSearchAttrib.Custom, customId: 'expressionsearch#Bcc' };
-      else if (e.tok == 'only') attr = { type: nsMsgSearchAttrib.Custom, customId: 'expressionsearch#toSomebodyOnly' };
-      else if (e.tok == 'simple') attr = { type: nsMsgSearchAttrib.Custom, customId: 'expressionsearch#subjectSimple' };
-      else if (e.tok == 'regex') attr = { type: nsMsgSearchAttrib.Custom, customId: 'expressionsearch#subjectRegex' };
-      else if (e.tok == 'headerre') attr = { type: nsMsgSearchAttrib.Custom, customId: 'expressionsearch#headerRegex' };
-      else if (e.tok == 'date') attr = { type: nsMsgSearchAttrib.Custom, customId: 'expressionsearch#dateMatch' };
-      else if (e.tok == 'filename') attr = { type: nsMsgSearchAttrib.Custom, customId: 'expressionsearch#attachmentNameOrType' };
-      else if (e.tok == 'bodyre') attr = { type: nsMsgSearchAttrib.Custom, customId: 'expressionsearch#bodyRegex' };
-      else if (e.tok == 'fromre') attr = { type: nsMsgSearchAttrib.Custom, customId: 'expressionsearch#fromRegex' };
-      else if (e.tok == 'tore') attr = { type: nsMsgSearchAttrib.Custom, customId: 'expressionsearch#toRegex' };
-      else if (e.tok == 'body') attr = nsMsgSearchAttrib.Body;
-      else if (e.tok == 'attachment') attr = nsMsgSearchAttrib.HasAttachmentStatus;
-      else if (e.tok == 'status') attr = nsMsgSearchAttrib.MsgStatus;
-      else if (e.tok == 'size' || e.tok == 'smaller') attr = nsMsgSearchAttrib.Size;
-      else if (e.tok == 'before' || e.tok == 'after') attr = nsMsgSearchAttrib.Date;
+      else if (e.tok == 'subject') attr = Ci.nsMsgSearchAttrib.Subject;
+      else if (e.tok == 'bcc') attr = { type: Ci.nsMsgSearchAttrib.Custom, customId: 'expressionsearch#Bcc' };
+      else if (e.tok == 'only') attr = { type: Ci.nsMsgSearchAttrib.Custom, customId: 'expressionsearch#toSomebodyOnly' };
+      else if (e.tok == 'simple') attr = { type: Ci.nsMsgSearchAttrib.Custom, customId: 'expressionsearch#subjectSimple' };
+      else if (e.tok == 'regex') attr = { type: Ci.nsMsgSearchAttrib.Custom, customId: 'expressionsearch#subjectRegex' };
+      else if (e.tok == 'headerre') attr = { type: Ci.nsMsgSearchAttrib.Custom, customId: 'expressionsearch#headerRegex' };
+      else if (e.tok == 'date') attr = { type: Ci.nsMsgSearchAttrib.Custom, customId: 'expressionsearch#dateMatch' };
+      else if (e.tok == 'filename') attr = { type: Ci.nsMsgSearchAttrib.Custom, customId: 'expressionsearch#attachmentNameOrType' };
+      else if (e.tok == 'bodyre') attr = { type: Ci.nsMsgSearchAttrib.Custom, customId: 'expressionsearch#bodyRegex' };
+      else if (e.tok == 'fromre') attr = { type: Ci.nsMsgSearchAttrib.Custom, customId: 'expressionsearch#fromRegex' };
+      else if (e.tok == 'tore') attr = { type: Ci.nsMsgSearchAttrib.Custom, customId: 'expressionsearch#toRegex' };
+      else if (e.tok == 'body') attr = Ci.nsMsgSearchAttrib.Body;
+      else if (e.tok == 'attachment') attr = Ci.nsMsgSearchAttrib.HasAttachmentStatus;
+      else if (e.tok == 'status') attr = Ci.nsMsgSearchAttrib.MsgStatus;
+      else if (e.tok == 'size' || e.tok == 'smaller') attr = Ci.nsMsgSearchAttrib.Size;
+      else if (e.tok == 'before' || e.tok == 'after') attr = Ci.nsMsgSearchAttrib.Date;
       else if (e.tok == 'tag') {
         e.left.tok = this.get_key_from_tag(e.left.tok.toLowerCase());
-        attr = nsMsgSearchAttrib.Keywords;
-        if (e.left.tok.toLowerCase() == 'na') op = is_not ? nsMsgSearchOp.IsntEmpty : nsMsgSearchOp.IsEmpty;
+        attr = Ci.nsMsgSearchAttrib.Keywords;
+        if (e.left.tok.toLowerCase() == 'na') op = is_not ? Ci.nsMsgSearchOp.IsntEmpty : Ci.nsMsgSearchOp.IsEmpty;
       } else if (e.tok == 'calc') {
         return;
       } else { ExpressionSearchLog.log('Exression Search: unexpected specifier', 1); return; }
@@ -720,18 +731,18 @@ let ExpressionSearchFilter = {
       if (e.tok == 'attachment') {
         if (!/^(?:y|1|n|0|yes|no)$/i.test(e.left.tok)) { // treat as filename
           e.tok = 'filename';
-          attr = { type: nsMsgSearchAttrib.Custom, customId: 'expressionsearch#attachmentNameOrType' };
+          attr = { type: Ci.nsMsgSearchAttrib.Custom, customId: 'expressionsearch#attachmentNameOrType' };
         } else if (!/^[Yy1]/.test(e.left.tok)) {
           // looking for no attachment; reverse is_not.
           is_not = !is_not;
         }
       }
-      if (attr == nsMsgSearchAttrib.Date) {
+      if (attr == Ci.nsMsgSearchAttrib.Date) {
         // is before: before => false, true: true
         // is after: after   => false, false: false
         // isnot before: after => true, ture: false
         // isnot after: before => true, false: true
-        op = (is_not ^ (e.tok == 'before')) ? nsMsgSearchOp.IsBefore : nsMsgSearchOp.IsAfter;
+        op = (is_not ^ (e.tok == 'before')) ? Ci.nsMsgSearchOp.IsBefore : Ci.nsMsgSearchOp.IsAfter;
         let inValue = e.left.tok;
         let dayTimeRe = /^\s*((\d{1,2}):(\d{1,2})(:(\d{1,2})){0,1})\s*$/;
         if (dayTimeRe.test(inValue)) { // dayTime
@@ -753,7 +764,7 @@ let ExpressionSearchFilter = {
           });
           if (invalidTime) return;
           e.left.tok = timeArray.join(":");
-          attr = { type: nsMsgSearchAttrib.Custom, customId: 'expressionsearch#dayTime' };
+          attr = { type: Ci.nsMsgSearchAttrib.Custom, customId: 'expressionsearch#dayTime' };
         } else try { // normal date
           let date = new Date(inValue);
           e.left.tok = date.getTime() * 1000; // why need *1000, I don't know ;-)
@@ -768,30 +779,30 @@ let ExpressionSearchFilter = {
       }
       if (e.tok == 'status') {
         if (/^Rep/i.test(e.left.tok))
-          e.left.tok = nsMsgMessageFlags.Replied;
+          e.left.tok = Ci.nsMsgMessageFlags.Replied;
         else if (/^Rea/i.test(e.left.tok))
-          e.left.tok = nsMsgMessageFlags.Read;
+          e.left.tok = Ci.nsMsgMessageFlags.Read;
         else if (/^M/i.test(e.left.tok))
-          e.left.tok = nsMsgMessageFlags.Marked;
+          e.left.tok = Ci.nsMsgMessageFlags.Marked;
         else if (/^Star/i.test(e.left.tok))
-          e.left.tok = nsMsgMessageFlags.Marked;
+          e.left.tok = Ci.nsMsgMessageFlags.Marked;
         else if (/^F/i.test(e.left.tok))
-          e.left.tok = nsMsgMessageFlags.Forwarded;
+          e.left.tok = Ci.nsMsgMessageFlags.Forwarded;
         else if (/^N/i.test(e.left.tok))
-          e.left.tok = nsMsgMessageFlags.New;
+          e.left.tok = Ci.nsMsgMessageFlags.New;
         else if (/^(?:I|D)/i.test(e.left.tok))
-          e.left.tok = nsMsgMessageFlags.ImapDeleted;
+          e.left.tok = Ci.nsMsgMessageFlags.ImapDeleted;
         else if (/^A/i.test(e.left.tok))
-          e.left.tok = nsMsgMessageFlags.Attachment;
+          e.left.tok = Ci.nsMsgMessageFlags.Attachment;
         else if (/^UnR/i.test(e.left.tok)) {
-          e.left.tok = nsMsgMessageFlags.Read;
+          e.left.tok = Ci.nsMsgMessageFlags.Read;
           is_not = !is_not;
         } else {
           ExpressionSearchLog.log('Expression Search: unknown status ' + e.left.tok, 1);
           return;
         }
       }
-      if (attr == nsMsgSearchAttrib.AgeInDays) { // age==days==older_than/newer_than 2y,3m,5d,6,-8
+      if (attr == Ci.nsMsgSearchAttrib.AgeInDays) { // age==days==older_than/newer_than 2y,3m,5d,6,-8
         if (e.tok == 'newer_than') is_not = !is_not;
         // today == -1, yesterday == -2, day == '', week *=7, month *= 30?, year *= 365
         let match = e.left.tok.match(/^([-.\d]*)(\w*)/);
@@ -817,9 +828,9 @@ let ExpressionSearchFilter = {
           e.left.tok = days * period;
         }
       }
-      if (attr == nsMsgSearchAttrib.Size) {
+      if (attr == Ci.nsMsgSearchAttrib.Size) {
         if (e.tok == 'smaller') is_not = !is_not;
-        op = is_not ? nsMsgSearchOp.IsLessThan : nsMsgSearchOp.IsGreaterThan;
+        op = is_not ? Ci.nsMsgSearchOp.IsLessThan : Ci.nsMsgSearchOp.IsGreaterThan;
         let match = e.left.tok.match(/^([-.\d]*)(\w*)/i); // default KB, can be M,G
         if (match.length == 3) {
           let [, size, scale] = match;
@@ -839,15 +850,17 @@ let ExpressionSearchFilter = {
       }
       // else if (e.tok == 'size' || e.tok == 'smaller') ;
       if (e.tok == 'attachment' || e.tok == 'status')
-        op = is_not ? nsMsgSearchOp.Isnt : nsMsgSearchOp.Is;
+        op = is_not ? Ci.nsMsgSearchOp.Isnt : Ci.nsMsgSearchOp.Is;
       else if (e.tok == 'date' || e.tok == 'headerre')
-        op = is_not ? nsMsgSearchOp.DoesntMatch : nsMsgSearchOp.Matches;
-      else if (attr == nsMsgSearchAttrib.AgeInDays)
-        op = is_not ? nsMsgSearchOp.IsLessThan : nsMsgSearchOp.IsGreaterThan;
+        op = is_not ? Ci.nsMsgSearchOp.DoesntMatch : Ci.nsMsgSearchOp.Matches;
+      else if (attr == Ci.nsMsgSearchAttrib.AgeInDays)
+        op = is_not ? Ci.nsMsgSearchOp.IsLessThan : Ci.nsMsgSearchOp.IsGreaterThan;
       else if (e.tok == 'regex' || e.tok == 'bodyre') {
-        op = is_not ? nsMsgSearchOp.DoesntMatch : nsMsgSearchOp.Matches;
+        op = is_not ? Ci.nsMsgSearchOp.DoesntMatch : Ci.nsMsgSearchOp.Matches;
         // check regex
-        _getRegEx(e.left.tok);
+        let utils = new UtilsBase();
+        // static does not work, because the other consumers cannot call static members.
+        utils.getRegEx(e.left.tok);
       }
 
       this.addSearchTerm(aTermCreator, searchTerms, e.left.tok, attr, op, was_or);
