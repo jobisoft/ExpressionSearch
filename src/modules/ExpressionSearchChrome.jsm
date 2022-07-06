@@ -30,6 +30,21 @@ and it's easy to carelessly use the wrong one. We had a bunch of these issues (e
  
 But the code that's using resource://gre/ URLs for app content, or vice versa, is still technically wrong. */
 
+/*
+ * NEXT STEPS FOR CONVERSION:
+ *  - remove AOP: hook into the functions directly, or rethink if it is needed,
+ *    some actions have been moved to unLoad() and refreshFilterBar() already
+ * 
+ *  - move status bar popup into a action_popup, which should eliminate 
+ *    ExpressionSearchCommon.jsm and NotifyTools
+ *  
+ *  - migrate prefs to local storage
+ * 
+ *  - once a quicker search is available and there is an API to load a list of
+ *    messages into the view (custom search results), add a own, dedicated button
+ *    and no longer manipulate the existing quick search button and perform all
+ *    actions via API
+ */
 
 // for hook functions for attachment search
 var { SearchSpec } = ChromeUtils.import("resource:///modules/SearchSpec.jsm");
