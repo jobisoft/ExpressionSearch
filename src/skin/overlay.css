@@ -76,10 +76,6 @@
   display: none;
 }
 
-#quick-filter-bar-collapsible-buttons.showlabel toolbarbutton label.toolbarbutton-text {
-  display: inline;
-}
-
 #quick-filter-bar-collapsible-buttons.hideall, #qfb-filter-bar-spacer.hideall {
   display: none;
 }

@@ -171,19 +171,16 @@
         "message": "Select first message after hit enter"
     },
     "option.showbuttonlabel": {
-        "message": "Text label of 'Quick Filter' buttons:"
+        "message": "Customize icons in 'Quick Filter' bar:"
     },
     "option.showbuttonlabel.auto": {
-        "message": "Automatically show/hide"
+        "message": "Default, show icons and show/hide labels automatically"
     },
     "option.showbuttonlabel.hide": {
-        "message": "Always hide"
+        "message": "Show icons only"
     },
     "option.showbuttonlabel.hideall": {
-        "message": "Always hide icons & text"
-    },
-    "option.showbuttonlabel.show": {
-        "message": "Always show"
+        "message": "Hide icons & labels"
     },
     "option.use_root_folder": {
         "message": "Root folder of current folder"

@@ -171,19 +171,16 @@
         "message": "按回车选中第一条邮件"
     },
     "option.showbuttonlabel": {
-        "message": " '快速搜索条' 按钮的文字:"
+        "message": "自定义“快速过滤器”栏中的图标"
     },
     "option.showbuttonlabel.auto": {
-        "message": "自动显示或隐藏"
+        "message": "默认，自动显示图标和显示/隐藏标签"
     },
     "option.showbuttonlabel.hide": {
-        "message": "总是不显示"
+        "message": "仅显示图标"
     },
     "option.showbuttonlabel.hideall": {
-        "message": "始终隐藏图标和文本"
-    },
-    "option.showbuttonlabel.show": {
-        "message": "总是显示"
+        "message": "隐藏图标和标签"
     },
     "option.use_root_folder": {
         "message": "当前目录的根目录"

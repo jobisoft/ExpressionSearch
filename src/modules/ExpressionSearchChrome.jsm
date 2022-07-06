@@ -30,6 +30,7 @@ and it's easy to carelessly use the wrong one. We had a bunch of these issues (e
  
 But the code that's using resource://gre/ URLs for app content, or vice versa, is still technically wrong. */
 
+
 // for hook functions for attachment search
 var { SearchSpec } = ChromeUtils.import("resource:///modules/SearchSpec.jsm");
 // general services
@@ -553,10 +554,6 @@ var ExpressionSearchChrome = {
       return;
     }
 
-    // TB69, for    customElements.define("search-textbox", MozSearchTextbox, { extends: "textbox" });
-    //   let aNode = doc.createElementNS(XULNS, "search-textbox", {is: "search-textbox"});
-    //  let aNode = doc.createElementNS(XULNS, "search-textbox", {is: "search-textbox"});
-
     //code in moz-central has this without the {is: ...}
     let aNode = doc.createXULElement("search-textbox");//, {is: "search-textbox"});
     // let aNode = oldTextbox.cloneNode();
@@ -570,11 +567,16 @@ var ExpressionSearchChrome = {
     aNode.setAttribute("maxwidth", 500);
     aNode.setAttribute("minwidth", 280);
     ExpressionSearchLog.info("create box, command", aNode, oldTextbox, oldTextbox._commandHandler)
-    //  aNode.onCommand = oldTextbox.onCommand;
-    //is the following needed??
-    //?    aNode.setAttribute("keyLabelNonMac", "<Strg-Umschalt-L>");
-    //?    aNode.setAttribute("keyLabelMac", "<L>");
-    //because of the #1 in emptytextbase??
+    // Is the following needed??
+    // Currently not:  We create a new searchBox, but we then transfer the UI 
+    //                 binding of QuickFilterManager to the new field by callling
+    //                 _bindUI(). This transfers the key binding of the original
+    //                 field to the new field and the #1 in the locale string 
+    //                 display the current key binding.
+    // aNode.onCommand = oldTextbox.onCommand;
+    // aNode.setAttribute("keyLabelNonMac", "<Strg-Umschalt-L>");
+    // aNode.setAttribute("keyLabelMac", "<L>");
+
     oldTextbox.parentNode.insertBefore(aNode, oldTextbox.nextSibling);
     win._expression_search.createdElements.push(aNode);
 
@@ -586,7 +588,8 @@ var ExpressionSearchChrome = {
     aNode.addEventListener("blur", this.onSearchBarBlur, true);
     aNode.addEventListener("focus", this.onSearchBarFocus, true);
 
-    //not needed explicitly
+    // Since we depend on the origibnal field, this is not needed.
+    /*
     function handler(aEvent) {
       let filterValues = QuickFilterBarMuxer.activeFilterer.filterValues;
       let preValue =
@@ -608,9 +611,8 @@ var ExpressionSearchChrome = {
         QuickFilterBarMuxer.deferredUpdateSearch();
       }
     };
-
-    //aNode.addEventListener("command", handler);
-
+    aNode.addEventListener("command", handler);
+    */
 
     this.setSearchTimeout(win);
   },
