@@ -15,7 +15,10 @@
 // Changed by Opera.Wang@gmail.com to make it loadable as an module
 // Removed 'jQuery.' as jQuery maybe not avaliable
 // Removed IE stuff
-//Changes for TB 78+ (c) by Klaus Buecher/opto
+// Changes for TB 78+ (c) by Klaus Buecher/opto
+
+/* TODO: THIS ADDS AN EXTRA LAYER OF COMPLEXITY AND WE SHOULD RETURN TO VANILLA JS */
+
 "use strict";
 
 var EXPORTED_SYMBOLS = ["ExpressionSearchAOP"];
