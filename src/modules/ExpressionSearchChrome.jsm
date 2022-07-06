@@ -290,7 +290,7 @@ var ExpressionSearchChrome = {
       me.helpTimer = 0;
     }
     
-    let index = me.three_panes.indexOf(win); // using ===
+    let index = me.three_panes.indexOf(win);
     if (index >= 0) me.three_panes.splice(index, 1);
     let threadPane = win.document.getElementById("threadTree");
     if (threadPane && threadPane.RemoveEventListener) {
@@ -300,9 +300,9 @@ var ExpressionSearchChrome = {
     let doc = win.document;
     for (let node of win._expression_search.createdElements) {
       if (typeof (node) == 'string') node = doc.getElementById(node);
-      if (node && node.parentNode) {
-        ExpressionSearchLog.info("removed node " + (node.id ? node.id : node));
-        node.parentNode.removeChild(node);
+      if (node) {
+        ExpressionSearchLog.info("removed node", (node.id ? node.id : node));
+        node.remove();
       }
     }
     delete win._expression_search;
