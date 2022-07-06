@@ -26,7 +26,6 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
           break;
       }
       return;
-      break;
   }
 });
 

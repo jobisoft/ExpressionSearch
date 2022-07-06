@@ -14,6 +14,9 @@
     "about.help": {
         "message": "帮助"
     },
+    "about.changelog": {
+        "message": "Changelog"
+    },
     "about.homepage": {
         "message": "主页:"
     },

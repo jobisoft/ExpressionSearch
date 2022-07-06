@@ -1,6 +1,11 @@
 function translateURL(url, anchor) {
     if (typeof (anchor) == 'undefined') anchor = '';
-    let rv = browser.i18n.getMessage(url);
+
+    // Skip translation if a absolute path is given.
+    let rv = url.startsWith("/")
+      ? null
+      : browser.i18n.getMessage(url);
+
     return rv
         ? rv + anchor
         : url + anchor;
