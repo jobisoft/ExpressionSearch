@@ -986,7 +986,9 @@ var ExpressionSearchChrome = {
     
     let me = ExpressionSearchChrome;
     try {
-      me.initFunctionHook(win);
+      //TODO: What does this do? It messes up the unload and removes the filter bar from the UI, it is
+      //      the only function which is using AOP. I looks like this is also handled by events and css.
+      //me.initFunctionHook(win);
       me.initStatusBar.apply(me, [win]);
 
       
@@ -1018,7 +1020,9 @@ var ExpressionSearchChrome = {
     let me = ExpressionSearchChrome;
     try {
       me.initFolderSelect(win);
-      me.initFunctionHook4VirtualFolder(win);
+      //TODO: What does this do? It messes up the unload and removes the filter bar from the UI, it is
+      //      the only function which is using AOP. I looks like this is also handled by events and css.
+      //me.initFunctionHook4VirtualFolder(win);
     } catch (ex) {
       ExpressionSearchLog.logException(ex);
     }
