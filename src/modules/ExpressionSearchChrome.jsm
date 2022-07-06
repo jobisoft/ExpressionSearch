@@ -278,10 +278,11 @@ var ExpressionSearchChrome = {
   },
 
   unLoad: function (win) {
-    ExpressionSearchLog.info("ExpressionSearchChrome unLoad");
-    if (typeof (win._expression_search) == 'undefined') return;
-    
-    ExpressionSearchLog.info("Expression Search: unload...");
+    if (typeof (win._expression_search) == 'undefined') {
+      return;
+    }
+
+    ExpressionSearchLog.info("ExpressionSearchChrome unLoad() from window");
     let me = ExpressionSearchChrome;
     if (me.helpTimer > 0) {
       clearTimeout(me.helpTimer);
@@ -1022,9 +1023,15 @@ var ExpressionSearchChrome = {
   },
 
   Load: function (win) {
+    let type = win.document.documentElement.getAttribute('windowtype');
+    if (!["mail:3pane", "mailnews:virtualFolderList"].includes(type)) {
+      return;
+    }
+    if (typeof (win._expression_search) != 'undefined') {
+      return ExpressionSearchLog.log("expression search already loaded, return");
+    }
+
     ExpressionSearchLog.info("Start Load() into new window");
-    let me = ExpressionSearchChrome;
-    if (typeof (win._expression_search) != 'undefined') return ExpressionSearchLog.log("expression search already loaded, return");
     win._expression_search = {
       createdElements: [],
       hookedFunctions: [], 
@@ -1033,11 +1040,10 @@ var ExpressionSearchChrome = {
       originalURI: undefined
     };
 
-    let type = win.document.documentElement.getAttribute('windowtype');
     if (type == 'mail:3pane') {
-      me.loadInto3pane(win);
+      ExpressionSearchChrome.loadInto3pane(win);
     } else if (type == 'mailnews:virtualFolderList') {
-      me.loadIntoVirtualFolderList(win);
+      ExpressionSearchChrome.loadIntoVirtualFolderList(win);
     }
   },
 

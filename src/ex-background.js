@@ -41,21 +41,31 @@ messenger.runtime.onInstalled.addListener(async ({ reason, temporary }) => {
     case "install":
       {
         const url = messenger.runtime.getURL("html/installed.html");
-        // Since you use links in your html, create the page in a tab to have navigation.
         await messenger.tabs.create({ url });
-        // await messenger.windows.create({ url, type: "popup", height: 750, width: 1090, });
-        // await messenger.windows.create({ url, type: "popup", width: 910, height: 750, });
       }
       break;
 
     case "update":
       {
         const url = messenger.runtime.getURL("html/update.html");
-        // Since you use links in your html, create the page in a tab to have navigation.
         await messenger.tabs.create({ url });
-        // await messenger.windows.create({ url, type: "popup", width: 910, height: 750, });
-        // await messenger.windows.create({ url, type: "popup", height: 750, width: 1090, });
       }
       break;
   }
 });
+
+async function main() {
+  messenger.ExpressionSearch.initPrefs();
+
+  const windows = await messenger.windows.getAll();
+  for (let window of windows) {
+    // initWindow() knows if the window needs init.
+    await messenger.ExpressionSearch.initWindow(window.id);
+  }
+  messenger.windows.onCreated.addListener((window) => {
+    // initWindow() knows if the window needs init.
+    messenger.ExpressionSearch.initWindow(window.id);
+  });
+}
+
+main();
