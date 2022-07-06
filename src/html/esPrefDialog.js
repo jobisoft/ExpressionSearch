@@ -41,7 +41,7 @@ async function onLoad() {
 
   for (let [id, link] of Object.entries(links)) {
     let element = window.document.getElementById(id);
-    if (!element) console.log(id);
+    if (!element) ExpressionSearchLog.info(`Element ${id} is missing`);
     switch (link.type) {
       case "tab":
         element.addEventListener("click", () => browser.tabs.create({ url: link.url }));

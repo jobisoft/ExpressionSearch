@@ -17,8 +17,6 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
           break;
         case "window":
           info.createData.url = translateURL(info.url, info.anchor);
-          console.log(info.createData);
-
           browser.windows.create(info.createData);
           break;
         case "external":

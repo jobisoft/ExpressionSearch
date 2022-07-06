@@ -359,17 +359,17 @@ class BodyTermBase extends CustomerTermBase {
     return emitterInstance.found ^ (aSearchOp == Ci.nsMsgSearchOp.DoesntMatch);
   });
 
-  if (!MailServices.filters.getCustomTerm("expressionsearch#Bcc")) { console.log("Adding Bcc"); MailServices.filters.addCustomTerm(bccSearch); }
-  if (!MailServices.filters.getCustomTerm("expressionsearch#toSomebodyOnly")) { console.log("Adding toSomebodyOnly"); MailServices.filters.addCustomTerm(toSomebodyOnly); }
-  if (!MailServices.filters.getCustomTerm("expressionsearch#subjectRegex")) { console.log("Adding subjectRegex"); MailServices.filters.addCustomTerm(subjectRegex); }
-  if (!MailServices.filters.getCustomTerm("expressionsearch#subjectSimple")) { console.log("Adding subjectSimple"); MailServices.filters.addCustomTerm(subjectSimple); }
-  if (!MailServices.filters.getCustomTerm("expressionsearch#headerRegex")) { console.log("Adding headerRegex"); MailServices.filters.addCustomTerm(headerRegex); }
-  if (!MailServices.filters.getCustomTerm("expressionsearch#fromRegex")) { console.log("Adding fromRegex"); MailServices.filters.addCustomTerm(fromRegex); }
-  if (!MailServices.filters.getCustomTerm("expressionsearch#toRegex")) { console.log("Adding toRegex"); MailServices.filters.addCustomTerm(toRegex); }
-  if (!MailServices.filters.getCustomTerm("expressionsearch#dayTime")) { console.log("Adding dayTime"); MailServices.filters.addCustomTerm(dayTime); }
-  if (!MailServices.filters.getCustomTerm("expressionsearch#dateMatch")) { console.log("Adding dateMatch"); MailServices.filters.addCustomTerm(dateMatch); }
-  if (!MailServices.filters.getCustomTerm("expressionsearch#attachmentNameOrType")) { console.log("Adding attachmentNameOrType"); MailServices.filters.addCustomTerm(attachmentNameOrType); }
-  if (!MailServices.filters.getCustomTerm("expressionsearch#bodyRegex")) { console.log("Adding bodyRegex"); MailServices.filters.addCustomTerm(bodyRegex); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#Bcc")) { MailServices.filters.addCustomTerm(bccSearch); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#toSomebodyOnly")) { MailServices.filters.addCustomTerm(toSomebodyOnly); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#subjectRegex")) { MailServices.filters.addCustomTerm(subjectRegex); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#subjectSimple")) { MailServices.filters.addCustomTerm(subjectSimple); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#headerRegex")) { MailServices.filters.addCustomTerm(headerRegex); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#fromRegex")) { MailServices.filters.addCustomTerm(fromRegex); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#toRegex")) { MailServices.filters.addCustomTerm(toRegex); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#dayTime")) { MailServices.filters.addCustomTerm(dayTime); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#dateMatch")) { MailServices.filters.addCustomTerm(dateMatch); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#attachmentNameOrType")) { MailServices.filters.addCustomTerm(attachmentNameOrType); }
+  if (!MailServices.filters.getCustomTerm("expressionsearch#bodyRegex")) { MailServices.filters.addCustomTerm(bodyRegex); }
 })()
 
 let ExpressionSearchFilter = {
@@ -380,8 +380,6 @@ let ExpressionSearchFilter = {
   latchQSFolderReq: 0,
 
   appendTerms: function (aTermCreator, aTerms, aFilterValue) {
-    console.log("appendTerms");
-
     try {
       // we're in javascript modules, no window object, so first find the top window
       let topWin = {};
@@ -442,8 +440,6 @@ let ExpressionSearchFilter = {
   },
 
   domBindExtra: function (aDocument, aMuxer, aNode) {
-    console.log("domBindExtra");
-
     // -- platform-dependent emptytext setup
     let filterNode = aDocument.getElementById('qfb-qs-textbox');
     let quickKey = '';
@@ -461,16 +457,12 @@ let ExpressionSearchFilter = {
   },
 
   getDefaults: function () { // this function get called pretty early
-    console.log("getDefaults");
-
     return {
       text: null,
     };
   },
 
   propagateState: function (aOld, aSticky) {
-    console.log("propagateState");
-
     return {
       // must clear state when create quick search folder, or recursive call happenes when aSticky.
       text: (aSticky && !ExpressionSearchFilter.latchQSFolderReq && typeof (aOld) != 'undefined') ? aOld.text : null,
@@ -479,8 +471,6 @@ let ExpressionSearchFilter = {
   },
 
   onCommand: function (aState, aNode, aEvent, aDocument) { // may get skipped when init, but appendTerms get called
-    console.log("onCommand");
-
     let text = aNode.value.length ? aNode.value : null;
     aState = aState || {}; // or will be no search.
     let needSearch = false;
@@ -510,8 +500,6 @@ let ExpressionSearchFilter = {
     aMuxer,
     aFromPFP
   ) {
-    console.log("reflectInDOM");
-
     //PFP: PostFilterProcess, the second value PFP returns
     // Update the text if it has changed (linux does weird things with empty
     //  text if we're transitioning emptytext to emptytext)
@@ -552,8 +540,6 @@ let ExpressionSearchFilter = {
   },
 
   postFilterProcess: function (aState, aViewWrapper, aFiltering) {
-    console.log("postFilterProcess");
-
     // If we're not filtering, not filtering on text, there are results, or
     //  gloda is not enabled so upselling makes no sense, then bail.
     // (Currently we always return "nosale" to make sure our panel is closed;
@@ -568,8 +554,6 @@ let ExpressionSearchFilter = {
   },
 
   addSearchTerm: function (aTermCreator, searchTerms, str, attr, op, is_or, grouping) {
-    console.log("addSearchTerm");
-
     let aCustomId;
     if (typeof (attr) == 'object' && attr.type == Ci.nsMsgSearchAttrib.Custom) {
       aCustomId = attr.customId;
@@ -620,8 +604,6 @@ let ExpressionSearchFilter = {
   },
 
   get_key_from_tag: function (myTag) {
-    console.log("get_key_from_tag");
-
     if (myTag == 'na') return myTag;
     let tagArray = MailServices.tags.getAllTags({});
     // consider two tags, one is "ABC", the other is "ABCD", when searching for "AB", perfect is return both.
@@ -648,8 +630,6 @@ let ExpressionSearchFilter = {
   },
 
   expression2gloda: function (searchValue) {
-    console.log("expression2gloda");
-
     searchValue = searchValue.replace(/^g:\s*/i, '');
     let regExp = new RegExp("(?:^|\\b)(?:" + ExpressionSearchTokens.allTokens + "):", "g");
     searchValue = searchValue.replace(regExp, '');
@@ -658,8 +638,6 @@ let ExpressionSearchFilter = {
   },
 
   getSearchTermString: function (searchTerms) {
-    console.log("getSearchTermString");
-
     let condition = "";
     searchTerms.forEach(function (searchTerm, index, array) {
       if (index > 0) condition += " ";
@@ -680,8 +658,6 @@ let ExpressionSearchFilter = {
   },
 
   convertExpression: function (e, aTermCreator, searchTerms, was_or) {
-    console.log("convertExpression");
-
     var is_not = false;
     if (e.kind == 'op' && e.tok == '-') {
       if (e.left.kind != 'spec') {
@@ -872,8 +848,6 @@ let ExpressionSearchFilter = {
       this.convertExpression(e.right, aTermCreator, searchTerms, e.kind == 'op' && e.tok == 'or');
   },
   createSearchTermsFromExpression: function (e, aTermCreator, searchTerms) {
-    console.log("createSearchTermsFromExpression");
-
     // start converting the search expression.  Every search term
     // has an and or or field in it.  My current understanding is
     // that it's what this term should be preceded by.  Of course it

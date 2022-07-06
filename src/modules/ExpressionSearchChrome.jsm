@@ -125,7 +125,6 @@ var ExpressionSearchChrome = {
   },
 
   initPrefs: function () {
-    console.log("Init prefs")
     this.setDefaultPrefs();
     this.prefs = Services.prefs.getBranch("extensions.expressionsearch.");
     this.prefs.addObserver("", this, false);
@@ -432,15 +431,6 @@ var ExpressionSearchChrome = {
           }
         }
       }
-    }
-
-    let menu = document.getElementById(contextMenuID);
-    if (menu) {
-      for (let i = 0; i < menu.childNodes.length; i++) {
-        let menuitem = menu.childNodes[i];
-        menuitem.style.display = (this.options['enable_verbose_info']) ? "" : "none";
-        if (menuitem.tagName == "menuseparator") break;
-      };
     }
   },
 
@@ -1088,25 +1078,16 @@ var ExpressionSearchChrome = {
   },
 
   addMenuItem: function (menu, doc, parent) {
-    let isSubMenu = typeof (menu[2]) == 'object' && menu[2] instanceof Array;
-    let item = doc.createElementNS(XULNS, menu[0] == '' ? "menuseparator" : isSubMenu ? 'menu' : "menuitem");
-    if (menu[0] != '') {
-      item.setAttribute('label', menu[0]);
-      if (menu[1]) item.setAttribute('image', menu[1]);
-      if (isSubMenu) {
-        let menupopup = doc.createElementNS(XULNS, "menupopup");
-        menu[2].forEach(function (submenu) {
-          autoArchive.addMenuItem(submenu, doc, menupopup);
-        });
-        item.insertBefore(menupopup, null);
-      } else if (typeof (menu[2]) == 'function') item.addEventListener('command', menu[2], false);
-      if (menu[3]) {
-        for (let attr in menu[3]) {
-          item.setAttribute(attr, menu[3][attr]);
-        }
+    let item = doc.createElementNS(XULNS,"menuitem");
+    item.setAttribute('label', menu[0]);
+    if (menu[1]) item.setAttribute('image', menu[1]);
+    if (typeof (menu[2]) == 'function') item.addEventListener('command', menu[2], false);
+    if (menu[3]) {
+      for (let attr in menu[3]) {
+        item.setAttribute(attr, menu[3][attr]);
       }
-      item.setAttribute('class', isSubMenu ? "menu-iconic" : "menuitem-iconic");
     }
+    item.setAttribute('class', "menuitem-iconic");
     parent.insertBefore(item, null);
   },
 
@@ -1115,7 +1096,6 @@ var ExpressionSearchChrome = {
     let popupset = doc.createElementNS(XULNS, "popupset");
     popupset.id = popupsetID;
     let menupopup = doc.createElementNS(XULNS, "menupopup");
-    let menuGroupName = 'expression_search-status_menu';
     menupopup.id = contextMenuID;
     [
       [extension.localeData.localizeMessage("dialog.settings"), "chrome://messenger/skin/accountcentral/account-settings.png", function () { ExpressionSearchCommon.openWindow('/html/esPrefDialog.html'); }],
