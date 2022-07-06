@@ -474,7 +474,7 @@ var ExpressionSearchChrome = {
     let win = ExpressionSearchChrome.getWinFromEvent(event);
     me.isEnter = 0;
     let searchValue = this.value; // this is aNode/my search text box, updated with event.char
-    if (event && ((event.code == "return") || (event.code == "enter"))) {
+    if (event && ((event.code == "return") || (event.code == "enter") || (event.code == "Enter") || (event.code == "NumpadEnter"))) {
       //      if ( event && ( ( event.DOM_VK_RETURN && event.keyCode==event.DOM_VK_RETURN ) || ( event.DOM_VK_ENTER && event.keyCode==event.DOM_VK_ENTER ) ) ) {
       me.isEnter = 1;
       let panel = win.document.getElementById("qfb-text-search-upsell");
