@@ -109,6 +109,7 @@ var ExpressionSearchChrome = {
   },
 
   initPrefs: function () {
+    console.log("Init prefs")
     this.setDefaultPrefs();
     this.prefs = Services.prefs.getBranch("extensions.expressionsearch.");
     this.prefs.addObserver("", this, false);
@@ -126,7 +127,6 @@ var ExpressionSearchChrome = {
   cleanupPrefs: function () {
     ExpressionSearchLog.info("ExpressionSearchChrome cleanup");
     this.prefs.removeObserver("", ExpressionSearchChrome);
-    delete this.prefs;
     this.hookedGlobalFunctions.forEach(hooked => hooked.unweave());
     ExpressionSearchLog.info("Expression Search: cleanup done");
   },
@@ -304,7 +304,6 @@ var ExpressionSearchChrome = {
       }
     }
     delete win._expression_search;
-    delete win.ExpressionSearchChrome;
   },
 
   refreshFilterBar: function (win) {
@@ -898,19 +897,6 @@ var ExpressionSearchChrome = {
     return;
   },
 
-  firstRunAction: function () {
-    //! not working
-    let anchor = '';
-    if (this.options.installed_version != "0.1") anchor = '#version_history'; // this is an update
-    let firstRun = Services.vc.compare(this.options.current_version, this.options.installed_version);
-    // must before openTab
-    this.prefs.setStringPref('installed_version', this.options.current_version);
-
-    if (firstRun > 0) { // first for this version
-      //      ExpressionSearchCommon.showHelpFile('expressionsearch.helpfile', anchor);
-    }
-  },
-
   createKeyset: function (win) {
     let doc = win.document;
     let mailKeys = doc.getElementById('mailKeys');
@@ -1036,7 +1022,7 @@ var ExpressionSearchChrome = {
   },
 
   Load: function (win) {
-    ExpressionSearchLog.info("start Load");
+    ExpressionSearchLog.info("Start Load() into new window");
     let me = ExpressionSearchChrome;
     if (typeof (win._expression_search) != 'undefined') return ExpressionSearchLog.log("expression search already loaded, return");
     win._expression_search = {
@@ -1046,7 +1032,6 @@ var ExpressionSearchChrome = {
       timer: Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer), 
       originalURI: undefined
     };
-    win.ExpressionSearchChrome = ExpressionSearchChrome; // export ExpressionSearchChrome to windows name space
 
     let type = win.document.documentElement.getAttribute('windowtype');
     if (type == 'mail:3pane') {
@@ -1054,26 +1039,6 @@ var ExpressionSearchChrome = {
     } else if (type == 'mailnews:virtualFolderList') {
       me.loadIntoVirtualFolderList(win);
     }
-
-    // first get my own version
-    me.options.current_version = "0.0"; // in default.js, it's 0.1, so first installed users also have help loaded
-    try {
-        AddonManager.getAddonByID("expressionsearch@opto.one").then(addon => {
-          me.options.current_version = addon.version;
-          me.firstRunAction.apply(me); //DELETE
-        });
-    } catch (ex) {
-    }
-
-    win.addEventListener("unload", me.onUnLoad, false);
-  },
-
-  onUnLoad: function (event) {
-    ExpressionSearchLog.info('onUnLoad');
-    let aWindow = event.currentTarget;
-    if (!aWindow) return;
-    aWindow.removeEventListener("unload", ExpressionSearchChrome.onUnLoad, false);
-    ExpressionSearchChrome.unLoad(aWindow);
   },
 
   setFocus: function (win) {
