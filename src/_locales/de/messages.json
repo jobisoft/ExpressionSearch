@@ -180,7 +180,7 @@
         "message": "Default, show icons and show/hide labels automatically"
     },
     "option.showbuttonlabel.hide": {
-        "message": "Show icons only"
+        "message": "Hide labels"
     },
     "option.showbuttonlabel.hideall": {
         "message": "Hide icons & labels"

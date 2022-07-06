@@ -177,7 +177,7 @@
         "message": "默认，自动显示图标和显示/隐藏标签"
     },
     "option.showbuttonlabel.hide": {
-        "message": "仅显示图标"
+        "message": "隐藏标签"
     },
     "option.showbuttonlabel.hideall": {
         "message": "隐藏图标和标签"
