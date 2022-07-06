@@ -1114,10 +1114,6 @@ var ExpressionSearchChrome = {
     let menuGroupName = 'expression_search-status_menu';
     menupopup.id = contextMenuID;
     [
-      ["about:config", "", function () { ExpressionSearchCommon.openTab('about:config'); }],
-      ["about:crashes", "", function () { ExpressionSearchCommon.openTab('about:crashes'); }],
-      ["about:memory", "", function () { ExpressionSearchCommon.openTab('about:memory?verbose'); }],
-      [''], // items before seprator and the seprator it self will only shown if verbose
       [extension.localeData.localizeMessage("dialog.settings"), "chrome://messenger/skin/accountcentral/account-settings.png", function () { ExpressionSearchCommon.openWindow('/html/esPrefDialog.html'); }],
       [extension.localeData.localizeMessage("option.help"), "chrome://global/skin/icons/question-64.png", function () { ExpressionSearchCommon.showHelpFile('expressionsearch.helpfile'); }],
       [extension.localeData.localizeMessage("donate.label"), extension.localeData.localizeMessage("donate.image"), function () { ExpressionSearchCommon.openLinkExternally("https://www.paypal.com/donate?hosted_button_id=EMVA9S5N54UEW"); }],

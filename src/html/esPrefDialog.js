@@ -33,10 +33,6 @@ async function onLoad() {
       type: "external",
       url: "https://github.com/opto/expression-search-NG/issues"
     },
-    "expressionsearch-pane-help-crash-textlink": {
-      type: "tab",
-      url: "chrome://about:crashes"
-    },
     "reuse_existing_folder-textlink": {
       type: "window",
       url: translateURL("expressionsearch.helpfile", "#keep_saved_search")
