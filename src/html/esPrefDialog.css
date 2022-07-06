@@ -21,13 +21,16 @@ textarea {
   margin-right: 3px;
 }
 
-.textlink {
-  color: blue;
-  cursor: pointer;
-  text-decoration: underline;
+.sup {
   position: relative;
   top: -1ex;
   font-size: 80%;
+}
+
+.textLink {
+  color: blue;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 .tooltip {

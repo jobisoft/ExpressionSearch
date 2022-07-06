@@ -26,7 +26,7 @@
           <div class="hbox">
             <input type="checkbox" data-preference="extensions.expressionsearch.reuse_existing_folder" id="reuse_existing_folder">
             <label for="reuse_existing_folder">__MSG_option.reusefolder__</label>
-            <label id="reuse_existing_folder-textlink" class='textlink'>?</label>
+            <label id="reuse_existing_folder-textlink" class="sup textLink">?</label>
           </div>
           <div class="hbox">
             <input type="checkbox"
@@ -95,8 +95,7 @@
             <div class="tooltip" id="esResultsLabelTooltip">
               <div class="vbox">
                 <label style="margin-left: 120px">__MSG_option.results_label_size.tip__</label>
-                <image src="/skin/results_label_size.jpg">
-                </image>
+                <img src="/skin/results_label_size.jpg">
               </div>
             </div>
           </div>
@@ -113,22 +112,22 @@
 
       <fieldset id="expressionsearch-pane-move2bar">
         <legend>__MSG_dialog.move2bar__</legend>
-        <div class="vbox">
+        <div class="hbox" style="justify-content: space-around;">
           <div class="hbox">
-            <input type="radio" name="move2bar" data-preference="extensions.expressionsearch.move2bar" id="expressionsearch_move2nowhere"
-              value="0"><label for="expressionsearch_move2nowhere">__MSG_dialog.move2quicksearchbar__</label>
+            <input type="radio" name="move2bar" data-preference="extensions.expressionsearch.move2bar" id="expressionsearch_move2nowhere" value="0">
+            <label for="expressionsearch_move2nowhere">__MSG_dialog.move2quicksearchbar__</label>
           </div>
           <div class="hbox">
-            <input type="radio" name="move2bar" data-preference="extensions.expressionsearch.move2bar" id="expressionsearch_move2toolbar"
-              value="1"><label for="expressionsearch_move2toolbar">__MSG_dialog.move2toolbar__</label>
+            <input type="radio" name="move2bar" data-preference="extensions.expressionsearch.move2bar" id="expressionsearch_move2toolbar" value="1">
+            <label for="expressionsearch_move2toolbar">__MSG_dialog.move2toolbar__</label>
           </div>
           <div class="hbox">
-            <input type="radio" name="move2bar" data-preference="extensions.expressionsearch.move2bar" id="expressionsearch_move2menubar"
-              value="2"><label for="expressionsearch_move2menubar">__MSG_dialog.move2menubar__</label>
+            <input type="radio" name="move2bar" data-preference="extensions.expressionsearch.move2bar" id="expressionsearch_move2menubar" value="2">
+            <label for="expressionsearch_move2menubar">__MSG_dialog.move2menubar__</label>
           </div>
           <div class="hbox">
-            <input type="radio" name="move2bar" data-preference="extensions.expressionsearch.move2bar" id="expressionsearch_move2tabbar"
-              value="3"><label for="expressionsearch_move2tabbar">__MSG_dialog.move2tabbar__</label>
+            <input type="radio" name="move2bar" data-preference="extensions.expressionsearch.move2bar" id="expressionsearch_move2tabbar" value="3">
+            <label for="expressionsearch_move2tabbar">__MSG_dialog.move2tabbar__</label>
           </div>
         </div>
       </fieldset>
@@ -158,7 +157,7 @@
         <div class="vbox">
           <div class="hbox">
             <label>__MSG_dialog.c2s_replace_title__</label>
-            <label id="c2s_replace_title_textlink" class='textlink'>?</label>
+            <label id="c2s_replace_title_textlink" class="sup textLink">?</label>
             <span>:&nbsp;</span>
             <label>__MSG_dialog.c2s_match__</label>
             <input data-preference="extensions.expressionsearch.c2s_regexpMatch" id="c2sMatch">
@@ -170,16 +169,12 @@
 
       <fieldset id="expressionsearch-pane-help">
         <legend>__MSG_dialog.help__</legend>
-        <div class="vbox">
+        <div class="hbox" style="align-items:center">
           <div class="hbox">
-            <image id="expressionsearch-pane-help-paypal-link" style="cursor:pointer;"
-              src="/skin/donate-with-paypal.png">
+            <img id="expressionsearch-pane-help-paypal-link" style="cursor:pointer;" src="/skin/donate-with-paypal.png">
           </div>
-          <div class="vbox">
-            <label id="expressionsearch-pane-help-file-textlink" class='textlink'>__MSG_option.help__</label>
-            <label id="expressionsearch-pane-help-github-textlink" class='textlink'>__MSG_option.issues__</label>
-            <label id="expressionsearch-pane-help-crash-textlink" class='textlink'>__MSG_option.crash__</label>
-          </div>
+          <div class="textLink" style="margin:0 0 0 1em" id="expressionsearch-pane-help-file-textlink">__MSG_option.help__</div>
+          <div class="textLink" style="margin:0 0 0 1em" id="expressionsearch-pane-help-github-textlink">__MSG_option.issues__</div>
         </div>
       </fieldset>
     </div>
