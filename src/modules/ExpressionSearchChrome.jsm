@@ -689,14 +689,6 @@ var ExpressionSearchChrome = {
       }
     }
 
-    if (this.options.load_virtual_folder_in_tab) {
-      // select folders to clear the search box
-      win.SelectFolder(QSFolderURI);
-      win.SelectFolder(win._expression_search.originalURI);
-      // if openTab later, will get 'Error: There is no active filterer but we want one.'
-      ExpressionSearchCommon.openTab({ folder: rootFolder, type: 'folder' });
-    }
-    
     // Check if folder exists already.
     if (targetFolderParent.containsChildNamed(QSFolderName)) {
       // modify existing folder
@@ -719,9 +711,20 @@ var ExpressionSearchChrome = {
       VirtualFolderHelper.createNewVirtualFolder(QSFolderName, targetFolderParent, searchFolders.join("|"), searchTerms, false);
     }
 
-    if (win._expression_search.originalURI == QSFolderURI) {
-      // select another folder to force reload of our virtual folder
-      win.SelectFolder(rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox).URI);
+    if (this.options.load_virtual_folder_in_tab) {
+      // Select folders to clear the search box.
+      win.SelectFolder(QSFolderURI);
+      win.SelectFolder(win._expression_search.originalURI);
+      // Do not load the virtual folder directly, as that causes errors, first
+      // open the root folder and then return to the virtual folder.
+      win.document.getElementById("tabmail").openTab("folder", {
+        folder: rootFolder,
+      });
+    } else {
+      if (win._expression_search.originalURI == QSFolderURI) {
+        // Select another folder to force reload of our virtual folder.
+        win.SelectFolder(rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox).URI);
+      }
     }
     win.SelectFolder(QSFolderURI);
   },

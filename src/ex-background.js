@@ -10,7 +10,6 @@
 messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
   switch (info.command) {
     case "showPage":
-    console.log(info);
     switch (info.type) {
         case "tab":
           info.createData.url = translateURL(info.url, info.anchor);
