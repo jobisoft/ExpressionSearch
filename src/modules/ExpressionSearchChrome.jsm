@@ -305,6 +305,9 @@ var ExpressionSearchChrome = {
         node.remove();
       }
     }
+
+    win.document.getElementById('qfb-show-filter-bar').hidden = false;
+    win.document.getElementById('qfb-qs-textbox').style.display = "";
     delete win._expression_search;
   },
 
@@ -341,17 +344,23 @@ var ExpressionSearchChrome = {
       let qfb = document.getElementById(dest);
       if (this.options.move2bar) qfb.classList.add('resetHeight'); // hide the qfb bar when move the elements to other places
       else qfb.classList.remove('resetHeight');
+      
       let reference = null;
-      if (this.options.move2bar == 0)
+      let showFilterBarButton = document.getElementById('qfb-show-filter-bar');
+      if (this.options.move2bar == 0) {
         reference = document.getElementById("quick-filter-bar-expando");
-      else if (this.options.move2bar == 1) {
+        showFilterBarButton.hidden = false;
+      } else if (this.options.move2bar == 1) {
         dest = 'mail-bar3';
-        reference = document.getElementById('qfb-show-filter-bar');
-      } else if (this.options.move2bar == 2)
-        dest = 'mail-toolbar-menubar2';
-      else if (this.options.move2bar == 3) {
+        reference = showFilterBarButton;
+        showFilterBarButton.hidden = true;
+      } else if (this.options.move2bar == 2) {
+        dest = 'toolbar-menubar';
+        showFilterBarButton.hidden = true;
+      } else if (this.options.move2bar == 3) {
         dest = 'tabs-toolbar';
         reference = document.getElementById('tabbar-toolbar');
+        showFilterBarButton.hidden = true;
       }
       let toolbar = document.getElementById(dest);
       let needMove = document.getElementById(ExpressionSearchChrome.needMoveId);
