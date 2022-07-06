@@ -732,9 +732,8 @@ var ExpressionSearchChrome = {
     let aNode = doc.getElementById(this.textBoxDomId);
     let gFolderDisplay = win.gFolderDisplay;
     if (!aNode || !gFolderDisplay) return;
-    if (gFolderDisplay.tree && gFolderDisplay.tree.treeBoxObject && gFolderDisplay.tree.treeBoxObject.view) {
-      let treeBox = gFolderDisplay.tree.treeBoxObject; //nsITreeBox_Object <= addon validator warning with comments
-      let treeView = treeBox.view; //nsITreeView
+    if (gFolderDisplay.tree && gFolderDisplay.tree.view) {
+      let treeView =  gFolderDisplay.tree.view; //nsITreeView
       let dbViewWrapper = gFolderDisplay.view; // DBViewWrapper
       if (treeView && dbViewWrapper && treeView.rowCount > 0) {
         if (treeView.isContainer(0) && !treeView.isContainerOpen(0))
@@ -748,7 +747,7 @@ var ExpressionSearchChrome = {
             //threadPane.view.selection.select(threadPane.currentIndex);
             var row = treeView.isContainer(0) && dbViewWrapper.showGroupedBySort ? 1 : 0;
             treeView.selection.select(row);
-            treeBox.ensureRowIsVisible(row);
+            gFolderDisplay.tree.ensureRowIsVisible(row);
           } // needSelect
         } // undefined or needSelect
       } // rowCount > 0
