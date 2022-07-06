@@ -658,34 +658,33 @@ var ExpressionSearchChrome = {
 
   // not works well for complex searchTerms. But it's for all folders.
   createQuickFolder: function (win, searchTerms) {
-    const nsMsgFolderFlags = Ci.nsMsgFolderFlags;
     let gFolderDisplay = win.gFolderDisplay;
     let currFolder = gFolderDisplay.displayedFolder;
     win._expression_search.originalURI = currFolder.URI;
     let rootFolder = currFolder.rootFolder; // nsIMsgFolder
     let QSFolderName = "ExpressionSearch";
-    let uriSearchString = "";
+    let searchFolders = [];
     if (!rootFolder) {
       alert('Expression Search: Cannot determine root folder of search');
       return;
     }
     let virtual_folder_path = this.prefs.getStringPref('virtual_folder_path'); // '' or 'mailbox://nobody@Local%20Folders/Archive'
-    let targetFolderParent = rootFolder;
-    if (virtual_folder_path != '') targetFolderParent = ExpressionSearchCommon.getFolder(virtual_folder_path);
+    let targetFolderParent = (virtual_folder_path == '')
+      ? rootFolder
+      : ExpressionSearchCommon.getFolder(virtual_folder_path);
     if (!targetFolderParent) {
       alert('Expression Search: Cannot determine virtual folder path:' + virtual_folder_path);
       return;
     }
-    let QSFolderURI = targetFolderParent.URI + "/" + QSFolderName;
 
+    let QSFolderURI = targetFolderParent.URI + "/" + QSFolderName;
+    // If there is no ExpressionSearch virtual folder, or if we do not need to honour its searchFolder setting,
+    // build a new list of folders to search.
     if (!targetFolderParent.containsChildNamed(QSFolderName) || !this.options.reuse_existing_folder) {
       for (let folder of rootFolder.descendants) {
         // only add non-virtual non-news folders
-        if (!folder.isSpecialFolder(nsMsgFolderFlags.Newsgroup, false) && !folder.isSpecialFolder(nsMsgFolderFlags.Virtual, false)) {
-          if (uriSearchString != "") {
-            uriSearchString += "|";
-          }
-          uriSearchString += folder.URI;
+        if (!folder.isSpecialFolder(Ci.nsMsgFolderFlags.Newsgroup, false) && !folder.isSpecialFolder(Ci.nsMsgFolderFlags.Virtual, false)) {
+          searchFolders.push(folder.URI);
         }
       }
     }
@@ -697,30 +696,32 @@ var ExpressionSearchChrome = {
       // if openTab later, will get 'Error: There is no active filterer but we want one.'
       ExpressionSearchCommon.openTab({ folder: rootFolder, type: 'folder' });
     }
-    //Check if folder exists already
+    
+    // Check if folder exists already.
     if (targetFolderParent.containsChildNamed(QSFolderName)) {
       // modify existing folder
       let msgFolder = ExpressionSearchCommon.getFolder(QSFolderURI);
-      if (!msgFolder.isSpecialFolder(nsMsgFolderFlags.Virtual, false)) {
+      if (!msgFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Virtual, false)) {
         alert('Expression Search: Non search folder ' + QSFolderName + ' is in the way');
         return;
       }
-      // save the settings
+      // Prepare the virtual folder for searching.
       let virtualFolderWrapper = VirtualFolderHelper.wrapVirtualFolder(msgFolder);
       virtualFolderWrapper.searchTerms = searchTerms;
+      // If reuse_existing_folder is TRUE, do not change its searchFolder setting.
       if (!this.options.reuse_existing_folder) {
-        virtualFolderWrapper.searchFolders = uriSearchString;
+        virtualFolderWrapper.searchFolders = searchFolders.join("|");
       }
       virtualFolderWrapper.onlineSearch = false;
       virtualFolderWrapper.cleanUpMessageDatabase();
       MailServices.accounts.saveVirtualFolders();
     } else {
-      VirtualFolderHelper.createNewVirtualFolder(QSFolderName, targetFolderParent, uriSearchString, searchTerms, false);
+      VirtualFolderHelper.createNewVirtualFolder(QSFolderName, targetFolderParent, searchFolders.join("|"), searchTerms, false);
     }
 
     if (win._expression_search.originalURI == QSFolderURI) {
       // select another folder to force reload of our virtual folder
-      win.SelectFolder(rootFolder.getFolderWithFlags(nsMsgFolderFlags.Inbox).URI);
+      win.SelectFolder(rootFolder.getFolderWithFlags(Ci.nsMsgFolderFlags.Inbox).URI);
     }
     win.SelectFolder(QSFolderURI);
   },
