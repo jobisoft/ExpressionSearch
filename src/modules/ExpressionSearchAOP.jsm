@@ -18,6 +18,7 @@
 // Changes for TB 78+ (c) by Klaus Buecher/opto
 
 /* TODO: THIS ADDS AN EXTRA LAYER OF COMPLEXITY AND WE SHOULD RETURN TO VANILLA JS */
+/* IT IS NOT USED (the function call to ExpressionSearchChrome.initFunctionHook() is commented out) */
 
 "use strict";
 
