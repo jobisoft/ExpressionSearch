@@ -1,20 +1,72 @@
-//Changes for TB 78+ (c) by Klaus Buecher/opto 2020-2021
-//  MPL 2.0
+// Changes for TB 78+ (c) by Klaus Buecher/opto 2020-2021
+// MPL 2.0
 
 "use strict";
 
 async function onLoad() {
-  /*let folderPicker = document.getElementById("esNewFolderPicker");
-  if (folderPicker.value == '') return;
-  let msgFolder = ExpressionSearchCommon.getFolder(folderPicker.value);
-  if (!msgFolder) return;
-  try {
-    document.getElementById("esNewFolderPopup").selectFolder(msgFolder); // not a issue, validator will false alarm on this line
-  } catch (e) {
-    folderPicker.setAttribute("label", msgFolder.prettyName);
-  }
-  folderPicker.setAttribute('tooltiptext', showPrettyTooltip(msgFolder.ValueUTF8 || msgFolder.value, msgFolder.prettyName));*/
   await preferences.load();
+
+  // The virtual_folder_path setting was loaded into the data-value attribute its
+  // UI element (p or div), triggered by the data-value attribute being included in the DOM.
+  // Prepare that information for display.
+  let vfpElement = window.document.getElementById("virtual_folder_path");
+  let vfpValue = {};
+  try {
+    vfpValue = JSON.parse(vfpElement.dataset.value)
+  } catch (ex) {
+    // Migrate old values?
+  }
+  await updateVirtualFolderElement(vfpValue);
+
+  async function updateVirtualFolderElement(vfpValue) {
+    let vfpElement = window.document.getElementById("virtual_folder_path");
+    if (vfpValue.accountId) {
+      let account = await browser.accounts.get(vfpValue.accountId)
+      vfpElement.textContent = `${account.name}:/${vfpValue.path}`
+      vfpElement.dataset.value = JSON.stringify(vfpValue);
+    } else {
+      vfpElement.textContent = browser.i18n.getMessage("option.use_root_folder");
+      vfpElement.dataset.value = JSON.stringify({});
+    }
+  }
+
+  function appendSubFolderEntries(parent, subfolders) {
+    if (!subfolders || subfolders.length == 0) {
+      return;
+    }
+    let ul = document.createElement('ul');
+    for (let folder of subfolders) {
+      let li = document.createElement('li');
+      let a = document.createElement('a');
+      a.addEventListener("click", () => updateVirtualFolderElement(folder))
+      a.textContent = folder.name;
+      li.appendChild(a);
+      appendSubFolderEntries(li, folder.subFolders);
+      ul.appendChild(li);
+    }
+    parent.appendChild(ul);
+  }
+
+  // Populate the folder widget.
+  let accounts = await browser.accounts.list();
+  let vfpMenu = window.document.getElementById("virtual_folder_popup");
+  let li = document.createElement('li');
+  let a = document.createElement('a');
+  a.addEventListener("click", () => updateVirtualFolderElement({}))
+  a.textContent = browser.i18n.getMessage("option.use_root_folder");
+  li.appendChild(a);
+  vfpMenu.appendChild(li);
+
+  for (let account of accounts) {
+    let li = document.createElement('li');
+    let a = document.createElement('a');
+    a.addEventListener("click", () => updateVirtualFolderElement({ accountId: account.id, path: "/" }))
+    a.textContent = account.name;
+    li.appendChild(a);
+    appendSubFolderEntries(li, account.folders);
+    vfpMenu.appendChild(li);
+  }
+  PopupMenuManager.load();
 
   let links = {
     "c2s_replace_title_textlink": {
@@ -112,23 +164,28 @@ var preferences = {
     if (element.dataset.splitChar) {
       value = value.split(element.dataset.splitChar).map(e => e.trim()).join("\n")
     }
-    
-    if (attribute in element) {
+
+    if (attribute in element.dataset) {
+      element.dataset[attribute] = value;
+    } else if (attribute in element) {
       element[attribute] = value;
     } else {
       element.setAttribute(attribute, value);
     }
   },
-  
+
   // Get the value of an HTML element.
   _getValue: function (element, attribute) {
     let rv = element.getAttribute(attribute);
     if (attribute in element) {
       rv = element[attribute];
     }
+    if (attribute in element.dataset) {
+      rv = element.dataset[attribute];
+    }
 
     if (element.dataset.splitChar) {
-      rv.split("\n").map(e => e.replaceAll(" ","")).join(element.dataset.splitChar)
+      rv.split("\n").map(e => e.replaceAll(" ", "")).join(element.dataset.splitChar)
     }
     return rv;
   },
@@ -180,4 +237,4 @@ function onFolderPick(aEvent) {
   folderPicker.setAttribute('tooltiptext', showPrettyTooltip(value, label));
 }
 
-window.addEventListener("DOMContentLoaded", onLoad);
+window.addEventListener("load", onLoad);

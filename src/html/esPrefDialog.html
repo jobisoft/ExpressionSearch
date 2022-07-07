@@ -3,12 +3,17 @@
 
 <head>
   <link rel="stylesheet" href="esPrefDialog.css">
+  <link rel="stylesheet" href="popupmenu/popupmenu.css" />  
   <title>__MSG_dialog.title__</title>
 </head>
 
 <body>
+    <!--HTML for popup Menu 2-->
+    <ul id="virtual_folder_popup" class="jqpopupmenu">
+    </ul>
+
   <div class="vbox" id="expressionsearch-pane" label="__MSG_dialog.settings__">
-    <div class="vbox" flex="1">
+    <div class="vbox">
       <fieldset id="expressionsearch-pane-setting">
         <legend>__MSG_dialog.settings__</legend>
         <div class="vbox">
@@ -26,7 +31,7 @@
           <div class="hbox">
             <input type="checkbox" data-preference="extensions.expressionsearch.reuse_existing_folder" id="reuse_existing_folder">
             <label for="reuse_existing_folder">__MSG_option.reusefolder__</label>
-            <label id="reuse_existing_folder-textlink" class="sup textLink">?</label>
+            <div id="reuse_existing_folder-textlink" class="sup textLink">?</div>
           </div>
           <div class="hbox">
             <input type="checkbox"
@@ -35,30 +40,30 @@
 
           <div class="hbox">
             <input type="checkbox" data-preference="extensions.expressionsearch.enable_statusbar_info">
-            <label>__MSG_option.enable_statusbar_info1__</label>
+            <div>__MSG_option.enable_statusbar_info1__</div>
             <input class='expressionsearch_pref_input' type="number" min="0" data-preference="extensions.expressionsearch.statusbar_info_showtime"
               hidespinbuttons="true" size='2'>
-            <label>__MSG_option.enable_statusbar_info2__</label>
+            <div>__MSG_option.enable_statusbar_info2__</div>
             <input class='expressionsearch_pref_input' type="number" min="0" data-preference="extensions.expressionsearch.statusbar_info_hidetime"
               hidespinbuttons="true" size='2'>
-            <label>__MSG_option.enable_statusbar_info3__</label>
+            <div>__MSG_option.enable_statusbar_info3__</div>
           </div>
 
           <div class="hbox">
             <input type="checkbox" data-preference="extensions.expressionsearch.load_virtual_folder_in_tab">
-            <label>__MSG_option.load_virtual_folder_in_tab__</label>
+            <div>__MSG_option.load_virtual_folder_in_tab__</div>
           </div>
 
           <div class="hbox" id="1" data-tooltip="esSearchTimeout">
-            <label>__MSG_option.search_timeout__</label>
+            <div>__MSG_option.search_timeout__</div>
             <input class='expressionsearch_pref_input' type="number" min="0" data-preference="extensions.expressionsearch.search_timeout"
               hidespinbuttons="true" size='4'>
-            <label>__MSG_option.ms__</label>
+            <div>__MSG_option.ms__</div>
             <div class="tooltip" id="esSearchTimeout">
               <div class="vbox">
-                <label>__MSG_option.search_timeout.tooltip_1__</label>
-                <label>__MSG_option.search_timeout.tooltip_2__</label>
-                <label>__MSG_option.search_timeout.tooltip_3__</label>
+                <div>__MSG_option.search_timeout.tooltip_1__</div>
+                <div>__MSG_option.search_timeout.tooltip_2__</div>
+                <div>__MSG_option.search_timeout.tooltip_3__</div>
               </div>
             </div>
           </div>
@@ -66,19 +71,11 @@
 
         <div class="vbox">
           <div class="hbox">
-            <label flex="2">__MSG_option.when_press_ctrl_plus_enter__</label>
-            <!--menulist id="esNewFolderPicker" flex="3" class="menuli"
-              preference='extensions.expressionsearch.virtual_folder_path' oncommand="onFolderPick(event);">
-              <menupopup id="esNewFolderPopup" type="folder" is="folder-menupopup" mode="newFolder"
-                showFileHereLabel="true" fileHereLabel="here">
-                <menuitem label='__MSG_option.use_root_folder__'>
-                </labelclass='folderMenuItem' SpecialFolder="Virtual">
-                <menuseparator>
-              </menupopup>
-            </menulist-->
+            <div>__MSG_option.when_press_ctrl_plus_enter__</div>
+            <div id="virtual_folder_path" style="margin-left:5px" class="textLink" data-popupmenu="virtual_folder_popup" data-value="" data-preference="extensions.expressionsearch.virtual_folder_path"></div>
           </div>
           <div class="hbox">
-            <label>__MSG_option.showbuttonlabel__</label>
+            <div>__MSG_option.showbuttonlabel__</div>
             <select class="menuli" data-preference='extensions.expressionsearch.showbuttonlabel'>
               <option value="0">__MSG_option.showbuttonlabel.auto__</option>
               <option value="2">__MSG_option.showbuttonlabel.hide__</option>
@@ -86,7 +83,7 @@
             </select>
           </div>
           <div class="hbox" id="2" data-tooltip="esResultsLabelTooltip">
-            <label>__MSG_option.results_label_size__</label>
+            <div>__MSG_option.results_label_size__</div>
             <select class="menuli" data-preference='extensions.expressionsearch.results_label_size'>
               <option value="0">__MSG_option.results_label_size.auto__</option>
               <option value="1">__MSG_option.results_label_size.show__</option>
@@ -94,16 +91,16 @@
             </select>
             <div class="tooltip" id="esResultsLabelTooltip">
               <div class="vbox">
-                <label style="margin-left: 120px">__MSG_option.results_label_size.tip__</label>
+                <div style="margin-left: 120px">__MSG_option.results_label_size.tip__</div>
                 <img src="/skin/results_label_size.jpg">
               </div>
             </div>
           </div>
           <div class="hbox" data-tooltip="esCustomDBHeadersTooltip">
-            <label>__MSG_dialog.searchmoreheaders__</label>
+            <div>__MSG_dialog.searchmoreheaders__</div>
             <textarea data-split-char=":" data-preference="mailnews.customHeaders"></textarea>
             <div class="tooltip" id="esCustomDBHeadersTooltip">
-              <label>__MSG_dialog.searchmoreheaderstooltip__</label>
+              <div>__MSG_dialog.searchmoreheaderstooltip__</div>
             </div>
           </div>
         </div>
@@ -156,12 +153,12 @@
         </div>
         <div class="vbox">
           <div class="hbox">
-            <label>__MSG_dialog.c2s_replace_title__</label>
-            <label id="c2s_replace_title_textlink" class="sup textLink">?</label>
+            <div>__MSG_dialog.c2s_replace_title__</div>
+            <div id="c2s_replace_title_textlink" class="sup textLink">?</div>
             <span>:&nbsp;</span>
-            <label>__MSG_dialog.c2s_match__</label>
+            <div>__MSG_dialog.c2s_match__</div>
             <input data-preference="extensions.expressionsearch.c2s_regexpMatch" id="c2sMatch">
-            <label>__MSG_dialog.c2s_replace__</label>
+            <div>__MSG_dialog.c2s_replace__</div>
             <input data-preference="extensions.expressionsearch.c2s_regexpReplace" id="c2sReplace">
           </div>
         </div>
@@ -184,9 +181,10 @@
     <button id="save">__MSG_dialog.save__
   </div>
 
-  <script src="/scripts/tools.js"></script>
-  <script src="/scripts/listener.js"></script>
-  <script src="/html/esPrefDialog.js"></script>
+  <script type="text/javascript" src="/scripts/tools.js"></script>
+  <script type="text/javascript" src="/scripts/listener.js"></script>
+  <script type="text/javascript" src="/html/popupmenu/popupmenu.js"></script>
+  <script type="text/javascript" src="/html/esPrefDialog.js"></script>
 </body>
 
 </html>

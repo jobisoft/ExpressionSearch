@@ -186,7 +186,7 @@
         "message": "Hide icons & labels"
     },
     "option.use_root_folder": {
-        "message": "Root folder of current folder"
+        "message": "Root folder of current account"
     },
     "option.when_press_ctrl_plus_enter": {
         "message": "When press Ctrl+Enter, create/update virtual folder in:"

@@ -28,6 +28,9 @@
     "page": "html/esPrefDialog.html",
     "open_in_tab": true
   },
+  "permissions": [
+    "accountsRead"
+  ],
   "experiment_apis": {
     "ExpressionSearch": {
       "schema": "api/ExpressionSearch/schema.json",
