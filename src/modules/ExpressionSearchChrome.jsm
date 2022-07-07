@@ -15,10 +15,6 @@ const popupsetID = "expressionSearch-statusbar-popup";
 const contextMenuID = "expression-search-context-menu";
 const tooltipId = "expression-search-tooltip";
 
-var { clearTimeout, setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-
 /* https://bugzilla.mozilla.org/show_bug.cgi?id=1383215#c24
 There are two ways that we currently support packaging omnijar:
 1) Separate JAR files for toolkit (GRE) content and app-specific content.
@@ -51,16 +47,14 @@ var { SearchSpec } = ChromeUtils.import("resource:///modules/SearchSpec.jsm");
 // general services
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
-// for create quick search folder
-//Cu.import("resource:///modules/virtualFolderWrapper.js"); // for VirtualFolderHelper
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { clearTimeout, setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var { VirtualFolderHelper } = ChromeUtils.import(
   "resource:///modules/VirtualFolderWrapper.jsm"
 );
-
 var { GlodaUtils } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaUtils.jsm"
 );
-var { AddonManager } = ChromeUtils.import("resource://gre/modules/AddonManager.jsm");
 
 // XXX we need to know whether the gloda indexer is enabled for upsell reasons,
 // but this should really just be exposed on the main Gloda public interface.
@@ -76,10 +70,10 @@ var {
   QuickFilterState,
 } = ChromeUtils.import("resource:///modules/QuickFilterManager.jsm");
 var { ExpressionSearchLog } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchLog.jsm"); // load log first
-var { 
+var {
   ExpressionSearchComputeExpression,
-   ExpressionSearchExprToStringInfix, 
-   ExpressionSearchTokens
+  ExpressionSearchExprToStringInfix,
+  ExpressionSearchTokens
 } = ChromeUtils.import("resource://expressionsearch/modules/gmailuiParse.jsm");
 var { ExpressionSearchAOP } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchAOP.jsm");
 var { ExpressionSearchCommon } = ChromeUtils.import("resource://expressionsearch/modules/ExpressionSearchCommon.jsm");
@@ -194,40 +188,40 @@ var ExpressionSearchChrome = {
     }
   },
 
-  
-  
-  
+
+
+
   initFunctionHook: function (win) {
     if (typeof (win.QuickFilterBarMuxer) == 'undefined' || typeof (win.QuickFilterBarMuxer.reflectFiltererState) == 'undefined') return;
 
     win._expression_search.hookedFunctions.push(ExpressionSearchAOP.around(
       {
-        target: win.QuickFilterBarMuxer, 
+        target: win.QuickFilterBarMuxer,
         method: 'reflectFiltererState'
       },
       function (invocation) {
-      let show = (ExpressionSearchChrome.options.move2bar == 0 || !ExpressionSearchChrome.options.hide_normal_filer);
-      let hasFilter = typeof (this.maybeActiveFilterer) == 'object';
-      let aFilterer = invocation.arguments[0];
-      // filter bar not need show, so hide mainbar(in refreshFilterBar) and show quick filter bar
-      if (!show && !aFilterer.visible && hasFilter) aFilterer.visible = true;
-      return invocation.proceed();
+        let show = (ExpressionSearchChrome.options.move2bar == 0 || !ExpressionSearchChrome.options.hide_normal_filer);
+        let hasFilter = typeof (this.maybeActiveFilterer) == 'object';
+        let aFilterer = invocation.arguments[0];
+        // filter bar not need show, so hide mainbar(in refreshFilterBar) and show quick filter bar
+        if (!show && !aFilterer.visible && hasFilter) aFilterer.visible = true;
+        return invocation.proceed();
       }
     )[0]);
 
     // onMakeActive && onTabSwitched: show or hide the buttons & search box
     win._expression_search.hookedFunctions.push(ExpressionSearchAOP.around(
       {
-         target: win.QuickFilterBarMuxer,
-         method: 'onMakeActive'
+        target: win.QuickFilterBarMuxer,
+        method: 'onMakeActive'
       },
       function (invocation) {
-      let aFolderDisplay = invocation.arguments[0];
-      let tab = aFolderDisplay._tabInfo;
-      let appropriate = ("quickFilter" in tab._ext) && aFolderDisplay.displayedFolder && !aFolderDisplay.displayedFolder.isServer;
-      win.document.getElementById(ExpressionSearchChrome.needMoveId).style.visibility = appropriate ? 'visible' : 'hidden';
-      win.document.getElementById("qfb-results-label").style.visibility = appropriate ? 'visible' : 'hidden';
-      return invocation.proceed();
+        let aFolderDisplay = invocation.arguments[0];
+        let tab = aFolderDisplay._tabInfo;
+        let appropriate = ("quickFilter" in tab._ext) && aFolderDisplay.displayedFolder && !aFolderDisplay.displayedFolder.isServer;
+        win.document.getElementById(ExpressionSearchChrome.needMoveId).style.visibility = appropriate ? 'visible' : 'hidden';
+        win.document.getElementById("qfb-results-label").style.visibility = appropriate ? 'visible' : 'hidden';
+        return invocation.proceed();
       }
     )[0]);
 
@@ -242,36 +236,36 @@ var ExpressionSearchChrome = {
     // hook _flattenGroupifyTerms to avoid being flatten
     if (!ExpressionSearchChrome.hookedGlobalFunctions.length) {
       ExpressionSearchChrome.hookedGlobalFunctions.push(ExpressionSearchAOP.around(
-        { 
-          target: SearchSpec.prototype, 
-          method: '_flattenGroupifyTerms' 
-        }, 
+        {
+          target: SearchSpec.prototype,
+          method: '_flattenGroupifyTerms'
+        },
         function (invocation) {
-        let aTerms = invocation.arguments[0];
-        let aCloneTerms = invocation.arguments[1];
-        let topWin = Services.wm.getMostRecentWindow("mail:3pane");
-        let aNode = topWin.document.getElementById(ExpressionSearchChrome.textBoxDomId);
-        if (!aNode || !aNode.value) return invocation.proceed();
-        let outTerms = aCloneTerms ? [] : aTerms;
-        let term;
-        if (aCloneTerms) {
-          for (term of fixIterator(aTerms, Ci.nsIMsgSearchTerm)) {
-            let cloneTerm = this.session.createTerm();
-            cloneTerm.attrib = term.attrib;
-            cloneTerm.value = term.value;
-            cloneTerm.arbitraryHeader = term.arbitraryHeader;
-            cloneTerm.hdrProperty = term.hdrProperty;
-            cloneTerm.customId = term.customId;
-            cloneTerm.op = term.op;
-            cloneTerm.booleanAnd = term.booleanAnd;
-            cloneTerm.matchAll = term.matchAll;
-            cloneTerm.beginsGrouping = term.beginsGrouping;
-            cloneTerm.endsGrouping = term.endsGrouping;
-            term = cloneTerm;
-            outTerms.push(term);
+          let aTerms = invocation.arguments[0];
+          let aCloneTerms = invocation.arguments[1];
+          let topWin = Services.wm.getMostRecentWindow("mail:3pane");
+          let aNode = topWin.document.getElementById(ExpressionSearchChrome.textBoxDomId);
+          if (!aNode || !aNode.value) return invocation.proceed();
+          let outTerms = aCloneTerms ? [] : aTerms;
+          let term;
+          if (aCloneTerms) {
+            for (term of fixIterator(aTerms, Ci.nsIMsgSearchTerm)) {
+              let cloneTerm = this.session.createTerm();
+              cloneTerm.attrib = term.attrib;
+              cloneTerm.value = term.value;
+              cloneTerm.arbitraryHeader = term.arbitraryHeader;
+              cloneTerm.hdrProperty = term.hdrProperty;
+              cloneTerm.customId = term.customId;
+              cloneTerm.op = term.op;
+              cloneTerm.booleanAnd = term.booleanAnd;
+              cloneTerm.matchAll = term.matchAll;
+              cloneTerm.beginsGrouping = term.beginsGrouping;
+              cloneTerm.endsGrouping = term.endsGrouping;
+              term = cloneTerm;
+              outTerms.push(term);
+            }
           }
-        }
-        return outTerms;
+          return outTerms;
         }
       )[0]);
     }
@@ -303,7 +297,7 @@ var ExpressionSearchChrome = {
       clearTimeout(me.helpTimer);
       me.helpTimer = 0;
     }
-    
+
     let index = me.three_panes.indexOf(win);
     if (index >= 0) me.three_panes.splice(index, 1);
     let threadPane = win.document.getElementById("threadTree");
@@ -358,7 +352,7 @@ var ExpressionSearchChrome = {
       let qfb = document.getElementById(dest);
       if (this.options.move2bar) qfb.classList.add('resetHeight'); // hide the qfb bar when move the elements to other places
       else qfb.classList.remove('resetHeight');
-      
+
       let reference = null;
       let showFilterBarButton = document.getElementById('qfb-show-filter-bar');
       if (this.options.move2bar == 0) {
@@ -658,10 +652,19 @@ var ExpressionSearchChrome = {
       alert('Expression Search: Cannot determine root folder of search');
       return;
     }
-    let virtual_folder_path = this.prefs.getStringPref('virtual_folder_path'); // '' or 'mailbox://nobody@Local%20Folders/Archive'
-    let targetFolderParent = (virtual_folder_path == '')
-      ? rootFolder
-      : ExpressionSearchCommon.getFolder(virtual_folder_path);
+
+    let virtual_folder_path = {};
+    try {
+      virtual_folder_path = JSON.parse(this.prefs.getStringPref('virtual_folder_path'))
+    } catch (ex) {
+      // Migrate old values?
+    }
+
+    // Get an nsIMsgFolder from the saved WebExtension MailFolder or fall back to the rootfolder
+    let targetFolderParent = (virtual_folder_path.accountId)
+      ? extension.folderManager.get(virtual_folder_path.accountId, virtual_folder_path.path)
+      : rootFolder;
+
     if (!targetFolderParent) {
       alert('Expression Search: Cannot determine virtual folder path:' + virtual_folder_path);
       return;
@@ -682,7 +685,7 @@ var ExpressionSearchChrome = {
     // Check if folder exists already.
     if (targetFolderParent.containsChildNamed(QSFolderName)) {
       // modify existing folder
-      let msgFolder = ExpressionSearchCommon.getFolder(QSFolderURI);
+      let msgFolder = MailUtils.getExistingFolder(QSFolderURI);
       if (!msgFolder.isSpecialFolder(Ci.nsMsgFolderFlags.Virtual, false)) {
         alert('Expression Search: Non search folder ' + QSFolderName + ' is in the way');
         return;
@@ -727,7 +730,7 @@ var ExpressionSearchChrome = {
     let gFolderDisplay = win.gFolderDisplay;
     if (!aNode || !gFolderDisplay) return;
     if (gFolderDisplay.tree && gFolderDisplay.tree.view) {
-      let treeView =  gFolderDisplay.tree.view; //nsITreeView
+      let treeView = gFolderDisplay.tree.view; //nsITreeView
       let dbViewWrapper = gFolderDisplay.view; // DBViewWrapper
       if (treeView && dbViewWrapper && treeView.rowCount > 0) {
         if (treeView.isContainer(0) && !treeView.isContainerOpen(0))
@@ -838,7 +841,7 @@ var ExpressionSearchChrome = {
     if (!aNode || !win.gDBView || !win.gFolderDisplay) return;
     if (!me.CheckClickSearchEvent(event)) return;
     let cell = box.getCellAt(event.clientX, event.clientY); // row => 1755, col => { id : 'sizeCol', columns : array }
-    let row = cell.row; 
+    let row = cell.row;
     let col = cell.col;
     let token = "";
     let msgHdr = win.gDBView.getMsgHdrAt(row);
@@ -1000,7 +1003,7 @@ var ExpressionSearchChrome = {
 
   loadInto3pane: function (win) {
     ExpressionSearchLog.info("loadInto3pane");
-    
+
     let me = ExpressionSearchChrome;
     try {
       //TODO: What does this do? It messes up the unload and removes the filter bar from the UI, it is
@@ -1008,7 +1011,7 @@ var ExpressionSearchChrome = {
       //me.initFunctionHook(win);
       me.initStatusBar.apply(me, [win]);
 
-      
+
       me.initSearchInput.apply(me, [win]);
       me.refreshFilterBar(win);
       me.registerCallback(win);
@@ -1018,7 +1021,7 @@ var ExpressionSearchChrome = {
         // On Mac, contextmenu is fired before onclick, thus even break onclick  still has context menu
         threadPane.addEventListener("contextmenu", me.onContextMenu, true);
       };
-      
+
       // This only needs to be done once after the first window is loaded, the_bindUI() call
       // also does not seem to be needed for every new window.
       if (!ExpressionSearchChrome.filterAdded) {
@@ -1057,9 +1060,9 @@ var ExpressionSearchChrome = {
     ExpressionSearchLog.info("Start Load() into new window");
     win._expression_search = {
       createdElements: [],
-      hookedFunctions: [], 
-      savedPosition: 0, 
-      timer: Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer), 
+      hookedFunctions: [],
+      savedPosition: 0,
+      timer: Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer),
       originalURI: undefined
     };
 
@@ -1078,7 +1081,7 @@ var ExpressionSearchChrome = {
   },
 
   addMenuItem: function (menu, doc, parent) {
-    let item = doc.createElementNS(XULNS,"menuitem");
+    let item = doc.createElementNS(XULNS, "menuitem");
     item.setAttribute('label', menu[0]);
     if (menu[1]) item.setAttribute('image', menu[1]);
     if (typeof (menu[2]) == 'function') item.addEventListener('command', menu[2], false);
@@ -1123,29 +1126,29 @@ var ExpressionSearchChrome = {
     let selectall = doc.createElementNS(XULNS, "button");
     selectall.setAttribute("label", extension.localeData.localizeMessage("virtualfolder.selectall"));
     selectall.setAttribute('oncommand', "ExpressionSearchChrome.changeAllFolder(window, true);");
-    
+
     let clearall = doc.createElementNS(XULNS, "button");
     clearall.setAttribute("label", extension.localeData.localizeMessage("virtualfolder.clearall"));
     clearall.setAttribute('oncommand', "ExpressionSearchChrome.changeAllFolder(window, false);");
-    
+
     let mode = doc.createElementNS(XULNS, "label");
     mode.setAttribute("value", extension.localeData.localizeMessage('virtualfolder.modelabel'));
-    
+
     let menulist = doc.createElementNS(XULNS, "menulist");
     menulist.id = 'esFolderType';
-    
+
     let modesingle = doc.createElementNS(XULNS, "menuitem");
     modesingle.setAttribute("label", extension.localeData.localizeMessage("virtualfolder.modesingle"));
     modesingle.setAttribute("value", 0);
-    
+
     let modechild = doc.createElementNS(XULNS, "menuitem");
     modechild.setAttribute("label", extension.localeData.localizeMessage("virtualfolder.modechild"));
     modechild.setAttribute("value", 1);
-    
+
     let modedescendants = doc.createElementNS(XULNS, "menuitem");
     modedescendants.setAttribute("label", extension.localeData.localizeMessage("virtualfolder.modedescendants"));
     modedescendants.setAttribute("value", 2);
-    
+
     let menupopup = doc.createElementNS(XULNS, "menupopup");
     menupopup.insertBefore(modesingle, null);
     menupopup.insertBefore(modechild, null);

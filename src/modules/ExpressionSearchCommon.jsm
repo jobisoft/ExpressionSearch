@@ -5,8 +5,6 @@
 
 "use strict";
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 const ADDON_ID = "expressionsearch@opto.one";
 var EXPORTED_SYMBOLS = ["ExpressionSearchCommon"];
 
@@ -25,14 +23,14 @@ var ExpressionSearchCommon = {
     });
   },
 
-  showHelpFile: function (url, anchor, createData = {type: "popup", width: 910, height: 750}) {
+  showHelpFile: function (url, anchor, createData = { type: "popup", width: 910, height: 750 }) {
     ExpressionSearchCommon.notifyBackground({
       command: "showPage",
       type: "window",
       url, anchor, createData
     });
   },
-  openWindow: function (url, anchor, createData = {type: "popup", width: 910, height: 750}) {
+  openWindow: function (url, anchor, createData = { type: "popup", width: 910, height: 750 }) {
     ExpressionSearchCommon.notifyBackground({
       command: "showPage",
       type: "window",
@@ -53,8 +51,4 @@ var ExpressionSearchCommon = {
       url
     });
   },
-
-  getFolder: function (url) {
-    return MailUtils.getExistingFolder(url);
-  }
 }
