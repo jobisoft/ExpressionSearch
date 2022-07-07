@@ -1098,10 +1098,10 @@ var ExpressionSearchChrome = {
     let menupopup = doc.createElementNS(XULNS, "menupopup");
     menupopup.id = contextMenuID;
     [
-      [extension.localeData.localizeMessage("dialog.settings"), "chrome://messenger/skin/accountcentral/account-settings.png", function () { ExpressionSearchCommon.openWindow('/html/esPrefDialog.html'); }],
-      [extension.localeData.localizeMessage("option.help"), "chrome://global/skin/icons/question-64.png", function () { ExpressionSearchCommon.showHelpFile('expressionsearch.helpfile'); }],
-      [extension.localeData.localizeMessage("donate.label"), extension.localeData.localizeMessage("donate.image"), function () { ExpressionSearchCommon.openLinkExternally("https://www.paypal.com/donate?hosted_button_id=EMVA9S5N54UEW"); }],
-      ["Report Bug", "chrome://global/skin/icons/information-32.png", function () { ExpressionSearchCommon.openLinkExternally("https://github.com/opto/expression-search-NG/issues"); }],
+      [extension.localeData.localizeMessage("dialog.settings"), "chrome://global/skin/icons/settings.svg", function () { ExpressionSearchCommon.openWindow('/html/esPrefDialog.html'); }],
+      [extension.localeData.localizeMessage("option.help"), "resource://expressionsearch/skin/help.png", function () { ExpressionSearchCommon.showHelpFile('expressionsearch.helpfile'); }],
+      [extension.localeData.localizeMessage("donate.label"), "resource://expressionsearch/" + extension.localeData.localizeMessage("donate.image"), function () { ExpressionSearchCommon.openLinkExternally("https://www.paypal.com/donate?hosted_button_id=EMVA9S5N54UEW"); }],
+      ["Report Bug", "resource://expressionsearch/skin/information.png", function () { ExpressionSearchCommon.openLinkExternally("https://github.com/opto/expression-search-NG/issues"); }],
       [extension.localeData.localizeMessage("about.about"), "resource://expressionsearch/skin/statusbar_icon.png", function () { ExpressionSearchCommon.openWindow("/html/about.html", "", { type: "popup", width: 470, height: 310 }); }],
     ].forEach(function (menu) {
       ExpressionSearchChrome.addMenuItem(menu, doc, menupopup);

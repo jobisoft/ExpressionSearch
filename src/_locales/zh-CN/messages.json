@@ -42,13 +42,10 @@
         "message": "设置"
     },
     "donate.image": {
-        "message": "/skin/alipay.ico"
+        "message": "/skin/paypal.ico"
     },
     "donate.label": {
         "message": "资助"
-    },
-    "donate.pay": {
-        "message": "alipay"
     },
     "dialog.c2s_match": {
         "message": "匹配"

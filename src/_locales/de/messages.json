@@ -47,9 +47,6 @@
     "donate.label": {
         "message": "Donate"
     },
-    "donate.pay": {
-        "message": "paypal"
-    },
     "dialog.c2s_match": {
         "message": "Match"
     },
